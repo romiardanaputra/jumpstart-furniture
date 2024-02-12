@@ -1,0 +1,60 @@
+@section('title_web_page', 'Reset Password')
+<x-guest-layout>
+    <div class="-pt-[8rem]">
+        <x-jet-authentication-card>
+            <x-slot name="logo">
+            </x-slot>
+            <div class="">
+                <div class="flex flex-row items-center py-[2rem]">
+                    <img src="{{ asset('assets/icons/jumpstart-navbar.png') }}"
+                        class="h-[25 px] w-[50px] mr-3 sm:h-[50px]" alt="Jumpstart-logo" />
+                    <h1
+                        class="text-xl font-rufina leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white ">
+                        Reset Password
+                    </h1>
+                </div>
+
+                <div class="mb-4 text-sm text-gray-600">
+                    <p class="leading-relaxed">
+                        {{ __('Forgot your password? No problem. Just let us know your email address and we will email
+                        you a
+                        password reset link that will allow you to choose a new one.') }}
+                    </p>
+                </div>
+
+                @if (session('status'))
+                <div class="mb-4 font-medium text-sm text-green-600">
+                    {{ session('status') }}
+                </div>
+                @endif
+
+                <x-jet-validation-errors class="mb-4" />
+
+                <form method="POST" action="{{ route('password.email') }}">
+                    @csrf
+
+                    <div class="w-full pb-[3rem]">
+                        <label for="email"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+                        <input type="email" name="email" id="email"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="name@gmail.com" :value="old('email')" autofocus>
+                    </div>
+                    <div class="flex justify-end space-x-5">
+                        
+                            <a type="button" href="{{ route('login') }}"
+                                class="w-full text-center text-white bg-[#F4841A] py-3 hover:scale-105 transition duration-300 ease-in-out hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium text-sm">
+                                Cancel
+                            </a>
+                        <button type="submit"
+                            class="w-full text-white bg-[#F4841A] py-3 hover:scale-105 transition duration-300 ease-in-out hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium text-sm">
+                            Link Reset
+                        </button>
+
+                    </div>
+
+                </form>
+            </div>
+        </x-jet-authentication-card>
+    </div>
+</x-guest-layout>
