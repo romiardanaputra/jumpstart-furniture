@@ -15,6 +15,6 @@ class Term extends Component
 
     public function render()
     {
-        return view('livewire.term');
+        return view('features.content.term');
     }
 }

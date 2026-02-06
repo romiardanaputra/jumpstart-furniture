@@ -16,7 +16,7 @@ class Blog extends Component
 
     public function render()
     {
-        return view('livewire.blog', [
+        return view('features.content.blog', [
             'blogs' => ModelsBlogs::all(),
         ]);
     }
