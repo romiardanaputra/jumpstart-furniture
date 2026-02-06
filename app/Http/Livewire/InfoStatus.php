@@ -51,7 +51,7 @@ class InfoStatus extends Component
 
     public function render()
     {
-        return view('livewire.info-status', [
+        return view('features.admin.info-status', [
             'info_status' => ModelsCart::where('user_id', auth()->user()->id)->get(),
         ]);
     }

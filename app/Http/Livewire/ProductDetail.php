@@ -38,7 +38,7 @@ class ProductDetail extends Component
 
     public function render()
     {
-        return view('livewire.product-detail', [
+        return view('features.shop.product-detail', [
             'product' => ModelsProduct::find(request()->product_id),
         ]);
     }

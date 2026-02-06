@@ -15,6 +15,6 @@ class AdminDashboard extends Component
 
     public function render()
     {
-        return view('livewire.admin-dashboard');
+        return view('features.admin.admin-dashboard');
     }
 }

@@ -8,6 +8,6 @@ class Landing extends Component
 {
     public function render()
     {
-        return view('livewire.landing');
+        return view('features.shop.landing');
     }
 }

@@ -186,7 +186,7 @@ class ManageProduct extends Component
      */
     public function render()
     {
-        return view('livewire.manage-product', [
+        return view('features.admin.manage-product', [
             'products' => $this->productService->getAllProducts(),
         ]);
     }

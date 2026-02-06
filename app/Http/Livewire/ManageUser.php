@@ -146,7 +146,7 @@ class ManageUser extends Component
      */
     public function render()
     {
-        return view('livewire.manage-user', [
+        return view('features.admin.manage-user', [
             'users' => $this->userService->getAllUsers(),
         ]);
     }

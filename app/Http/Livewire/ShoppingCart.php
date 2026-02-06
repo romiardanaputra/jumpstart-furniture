@@ -87,7 +87,7 @@ class ShoppingCart extends Component
      */
     public function render()
     {
-        return view('livewire.shopping-cart', [
+        return view('features.shop.shopping-cart', [
             'carts' => $this->cartService->getCartItems(auth()->user()->id),
         ]);
     }

@@ -129,7 +129,7 @@ class ManageBlog extends Component
      */
     public function render()
     {
-        return view('livewire.manage-blog', [
+        return view('features.admin.manage-blog', [
             'blogs' => $this->blogService->getAllBlogs(),
         ]);
     }

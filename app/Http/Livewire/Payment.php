@@ -175,7 +175,7 @@ class Payment extends Component
         $cartItems = $this->cartService->getCartItems($userId);
         $summary = $this->cartService->getCartSummary($userId, $this->shipping_method);
 
-        return view('livewire.payment', [
+        return view('features.payment.payment', [
             'user_info' => $cartItems,
             'cart_summary' => $summary,
         ]);

@@ -31,7 +31,7 @@ class Shipping extends Component
 
     public function render()
     {
-        return view('livewire.shipping', [
+        return view('features.payment.shipping', [
             'data_shipping' => ModelsCart::where('user_id', auth()->user()->id)->get(),
         ]);
     }
