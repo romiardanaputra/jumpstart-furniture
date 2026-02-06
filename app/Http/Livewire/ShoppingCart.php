@@ -2,79 +2,94 @@
 
 namespace App\Http\Livewire;
 
-use App\Models\Cart as ModelsCart;
-use App\Models\Product;
+use App\Services\CartService;
 use Livewire\Component;
 
 class ShoppingCart extends Component
 {
-    public $cart_id;
+    public ?int $cart_id = null;
+    public float $total_payment = 0;
+    public float $subtotal_payment = 0;
+    public string $special_instruction = '';
+    
+    protected CartService $cartService;
 
-    public $total_payment;
-
-    public $subtotal_payment;
-
-    public $special_instruction;
-
-    public function mount()
+    /**
+     * Boot method for dependency injection
+     */
+    public function boot(CartService $cartService): void
     {
-        $this->sub_total();
+        $this->cartService = $cartService;
     }
 
-    public function incrementQuantity($cart_id, $product_id)
+    public function mount(): void
     {
-        $cart = ModelsCart::firstWhere('cart_id', $cart_id);
-        $product = Product::firstWhere('product_id', $product_id);
-        if ($cart->quantity < 10) {
-            $cart->quantity++;
-            $cart->total_price = $cart->quantity * $product->product_price;
-            $cart->save();
-            $this->sub_total();
-        }
+        $this->calculateSubtotal();
     }
 
-    public function decrementQuantity($cart_id, $product_id)
+    /**
+     * Increment item quantity
+     */
+    public function incrementQuantity(int $cartId, int $productId): void
     {
-        $cart = ModelsCart::firstWhere('cart_id', $cart_id);
-        $product = Product::firstWhere('product_id', $product_id);
-        if ($cart->quantity > 1) {
-            $cart->quantity--;
-            $cart->total_price = $cart->quantity * $product->product_price;
-            $cart->save();
-            $this->sub_total();
-        }
+        $this->cartService->incrementQuantity($cartId, $productId);
+        $this->calculateSubtotal();
     }
 
-    public function sub_total()
+    /**
+     * Decrement item quantity
+     */
+    public function decrementQuantity(int $cartId, int $productId): void
     {
-        $cart = ModelsCart::where('user_id', auth()->user()->id)->get();
-        $this->subtotal_payment = $cart->sum(function ($cart) {
-            return $cart->total_price;
-        });
+        $this->cartService->decrementQuantity($cartId, $productId);
+        $this->calculateSubtotal();
     }
 
-    public function add_special_instruction()
+    /**
+     * Calculate subtotal from cart items
+     */
+    public function calculateSubtotal(): void
     {
-        $carts = ModelsCart::where('user_id', auth()->user()->id)->get();
-        foreach ($carts as $cart) {
-            $cart->special_instruction = $this->special_instruction;
-            $cart->save();
-        }
+        $this->subtotal_payment = $this->cartService->getCartTotal(
+            auth()->user()->id
+        );
+    }
 
+    /**
+     * Add special instruction to cart items
+     */
+    public function addSpecialInstruction(): mixed
+    {
+        // Sanitize input
+        $sanitizedInstruction = strip_tags(trim($this->special_instruction));
+        
+        $this->cartService->addSpecialInstruction(
+            auth()->user()->id,
+            $sanitizedInstruction
+        );
+
+        session()->flash('message', 'Special instructions added successfully!');
         return to_route('info-status');
     }
 
-    public function delete_cart($cart_id)
+    /**
+     * Delete cart item
+     */
+    public function deleteCart(int $cartId): mixed
     {
-        ModelsCart::where('cart_id', $cart_id)->delete();
-
+        $this->cartService->removeFromCart($cartId);
+        session()->flash('message', 'Item removed from cart!');
         return to_route('shopping-cart');
     }
 
+    /**
+     * Render the component
+     */
     public function render()
     {
         return view('livewire.shopping-cart', [
-            'carts' => ModelsCart::all(),
+            'carts' => $this->cartService->getCartItems(auth()->user()->id),
         ]);
     }
 }
+

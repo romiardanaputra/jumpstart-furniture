@@ -2,107 +2,183 @@
 
 namespace App\Http\Livewire;
 
-use App\Models\Cart as ModelsCart;
-use App\Models\Checkout as ModelsCheckout;
+use App\Services\PaymentService;
+use App\Services\CartService;
 use Livewire\Component;
-use Stripe\Charge;
-use Stripe\Customer;
-use Stripe\Stripe;
+use Illuminate\Support\Str;
+use Exception;
 
 class Payment extends Component
 {
-    public $shipping_method;
+    public string $shipping_method = 'standard';
+    public string $shipping_address = '';
+    public float $shipping_price = 20;
+    public float $payment = 0;
+    public string $expiry = '';
+    public string $card_number = '';
+    public string $card_holder_name = '';
+    public string $cvv = '';
 
-    public $shipping_address;
+    protected PaymentService $paymentService;
+    protected CartService $cartService;
 
-    public $shipping_price;
+    /**
+     * Validation rules
+     */
+    protected array $rules = [
+        'card_number' => ['required', 'string', 'size:16', 'regex:/^[0-9]+$/'],
+        'card_holder_name' => ['required', 'string', 'max:255'],
+        'cvv' => ['required', 'string', 'min:3', 'max:4'],
+        'expiry' => ['required', 'string', 'regex:/^(0[1-9]|1[0-2])\/([0-9]{2})$/'],
+        'shipping_method' => ['required', 'in:exclusive,standard'],
+        'shipping_address' => ['required', 'string', 'max:500'],
+    ];
 
-    public $payment;
+    /**
+     * Custom validation messages
+     */
+    protected array $messages = [
+        'card_number.size' => 'Card number must be exactly 16 digits.',
+        'card_number.regex' => 'Card number must contain only numbers.',
+        'expiry.regex' => 'Expiry must be in MM/YY format.',
+    ];
 
-    public $amount;
-
-    public $expiry;
-
-    public $card_number;
-
-    public $card_holder_name;
-
-    public $cvv;
-
-    public function mount()
+    /**
+     * Boot method for dependency injection
+     */
+    public function boot(PaymentService $paymentService, CartService $cartService): void
     {
-        $this->shipping_method = request()->shipping_method;
-        $this->shipping_address = request()->shipping_address;
-        $this->shipping_price();
-        $this->payment_calculation();
+        $this->paymentService = $paymentService;
+        $this->cartService = $cartService;
     }
 
-    public function submitPayment()
+    /**
+     * Mount component with initial data
+     */
+    public function mount(): void
     {
-        Stripe::setApiKey(env('STRIPE_SECRET'));
-        $orders = ModelsCart::where('user_id', auth()->user()->id)->get();
-        $customer = Customer::create([
-            'email' => $orders[0]->user->email,
-            'name' => $orders[0]->user->first_name . $orders[0]->user->last_name,
-            'phone' => $orders[0]->user->contact,
-        ]);
+        $this->shipping_method = request()->shipping_method ?? 'standard';
+        $this->shipping_address = request()->shipping_address ?? '';
+        $this->calculateShippingPrice();
+        $this->calculatePayment();
+    }
 
-        $charge = Charge::create([
-            'amount' => $this->payment * 100,
-            'currency' => 'usd',
-            'source' => [
-                'object' => 'card',
-                'number' => $this->card_number,
-                'exp_month' => 12,
-                'exp_year' => 25,
-                'cvc' => $this->cvv,
-                'name' => $this->card_holder_name,
-            ],
-        ]);
+    /**
+     * Submit payment using PaymentService
+     */
+    public function submitPayment(): mixed
+    {
+        // Validate input
+        $this->validate();
 
-        if ($charge->paid) {
-            session()->flash('message', 'Payment successful!');
-            foreach ($orders as $order) {
-                ModelsCheckout::create([
-                    'user_id' => auth()->user()->id,
-                    'product_id' => $order->product->product_id,
-                    'cart_id' => $order->cart_id,
-                    'shipping_address' => $this->shipping_address,
-                    'shipping_price' => $this->shipping_price,
-                    'shipping_method' => $this->shipping_method,
-                    'payment_status' => 'paid',
-                    'payment_total_per_item' => $this->payment,
-                ]);
+        // Sanitize card number - remove any non-numeric characters
+        $this->card_number = preg_replace('/[^0-9]/', '', $this->card_number);
+        $this->cvv = preg_replace('/[^0-9]/', '', $this->cvv);
+        $this->card_holder_name = strip_tags(trim($this->card_holder_name));
+        $this->shipping_address = strip_tags(trim($this->shipping_address));
+
+        // Generate idempotency key for this payment
+        $idempotencyKey = $this->generateIdempotencyKey();
+
+        try {
+            $user = auth()->user();
+            $cartItems = $this->cartService->getCartItems($user->id);
+
+            if ($cartItems->isEmpty()) {
+                session()->flash('error', 'Your cart is empty.');
+                return to_route('shopping-cart');
             }
-        } else {
-            session()->flash('error', 'Payment failed.');
+
+            // Parse expiry date
+            list($expMonth, $expYear) = explode('/', $this->expiry);
+
+            // Prepare payment data
+            $paymentData = [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'name' => $user->first_name . ' ' . $user->last_name,
+                'amount' => $this->payment,
+                'shipping_address' => $this->shipping_address,
+                'shipping_price' => $this->shipping_price,
+                'shipping_method' => $this->shipping_method,
+                'card_info' => [
+                    'number' => $this->card_number,
+                    'exp_month' => (int) $expMonth,
+                    'exp_year' => (int) ('20' . $expYear),
+                    'cvc' => $this->cvv,
+                    'name' => $this->card_holder_name,
+                ],
+            ];
+
+            // Process payment via service
+            $result = $this->paymentService->processPayment($paymentData, $idempotencyKey);
+
+            if ($result['success']) {
+                session()->flash('message', $result['message'] ?? 'Payment successful!');
+                
+                if ($result['idempotent'] ?? false) {
+                    session()->flash('info', 'This payment was already processed.');
+                }
+            } else {
+                session()->flash('error', $result['message'] ?? 'Payment failed.');
+            }
+
+            return to_route('info-status');
+
+        } catch (Exception $e) {
+            session()->flash('error', 'Payment processing error: ' . $e->getMessage());
+            return null;
         }
-
-        return to_route('payment');
     }
 
-    public function shipping_price()
+    /**
+     * Calculate shipping price based on method
+     */
+    public function calculateShippingPrice(): float
     {
-        return $this->shipping_price = ($this->shipping_method == 'exclusive' ? 40 : 20);
+        $this->shipping_price = $this->shipping_method === 'exclusive' ? 40.00 : 20.00;
+        return $this->shipping_price;
     }
 
-    public function payment_calculation()
+    /**
+     * Calculate total payment
+     */
+    public function calculatePayment(): float
     {
-        $total = ModelsCart::where('user_id', auth()->user()->id)->sum('total_price');
-        $this->payment = $total + $this->shipping_price();
-
+        $userId = auth()->id();
+        $this->payment = $this->paymentService->calculateTotal($userId, $this->shipping_method);
         return $this->payment;
     }
 
-    public function back_to_shipping_page()
+    /**
+     * Generate unique idempotency key for payment
+     */
+    protected function generateIdempotencyKey(): string
     {
-        return to_route('shipping', $parameter = ['shipping_address' => $this->shipping_address]);
+        return Str::uuid()->toString() . '_' . auth()->id() . '_' . time();
     }
 
+    /**
+     * Navigate back to shipping page
+     */
+    public function backToShippingPage(): mixed
+    {
+        return to_route('shipping', ['shipping_address' => $this->shipping_address]);
+    }
+
+    /**
+     * Render the component
+     */
     public function render()
     {
+        $userId = auth()->id();
+        $cartItems = $this->cartService->getCartItems($userId);
+        $summary = $this->cartService->getCartSummary($userId, $this->shipping_method);
+
         return view('livewire.payment', [
-            'user_info' => ModelsCart::where('user_id', auth()->user()->id)->get(),
+            'user_info' => $cartItems,
+            'cart_summary' => $summary,
         ]);
     }
 }
+

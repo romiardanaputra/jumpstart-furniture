@@ -78,7 +78,7 @@
                             class="text-white bg-[#F4841A] hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium text-sm px-[3rem] py-3 mr-2 mb-2 mt-[80px] hover:scale-110 transition duration-300 ease-in-out uppercase w-full">
                             Finish Payment
                         </button>
-                        <button wire:click="back_to_shipping_page" type="button"
+                        <button wire:click="backToShippingPage" type="button"
                             class="text-white bg-[#F4841A] hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium text-sm px-[3rem] py-3 mr-2 mb-2 mt-[80px] hover:scale-110 transition duration-300 ease-in-out uppercase w-full">
                             Back
                         </button>

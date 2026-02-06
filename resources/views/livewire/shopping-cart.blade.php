@@ -88,7 +88,7 @@
                             ${{ $cart->total_price }}
                         </td>
                         <td class="py-4 px-6">
-                            <i wire:click="delete_cart({{ $cart->cart_id }})" class="fa-solid fa-trash-can"></i>
+                            <i wire:click="deleteCart({{ $cart->cart_id }})" class="fa-solid fa-trash-can"></i>
                         </td>
                     </tr>
                     @endif
@@ -114,7 +114,7 @@
             <div class="subtotal text-end text-sm">
                 <p class="font-bold capitalize">subtotal <span class="pl-5">${{ $subtotal_payment }}</span></p>
                 <p class="capitalize pt-6">tax included and shipping calculated at checkout</p>
-                <button wire:click="add_special_instruction" type="submit"
+                <button wire:click="addSpecialInstruction" type="submit"
                     class="py-3 px-10  mb-2 mt-[25px] text-white bg-[#F4841A] hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium text-sm  hover:scale-110 transition duration-300 ease-in-out uppercase">
                     check out now !
                 </button>
