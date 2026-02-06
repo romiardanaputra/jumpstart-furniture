@@ -45,8 +45,39 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function configureRateLimiting()
     {
+        // Default API rate limiting
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
+
+        // Strict rate limiting for payment routes
+        RateLimiter::for('payment', function (Request $request) {
+            return Limit::perMinute(6)
+                ->by($request->user()?->id ?: $request->ip())
+                ->response(function () {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Too many payment attempts. Please wait before trying again.',
+                    ], 429);
+                });
+        });
+
+        // Rate limiting for admin routes
+        RateLimiter::for('admin', function (Request $request) {
+            return Limit::perMinute(30)->by($request->user()?->id ?: $request->ip());
+        });
+
+        // Rate limiting for authentication attempts
+        RateLimiter::for('auth', function (Request $request) {
+            return Limit::perMinute(10)
+                ->by($request->ip())
+                ->response(function () {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Too many login attempts. Please wait before trying again.',
+                    ], 429);
+                });
+        });
     }
 }
+
