@@ -45,4 +45,15 @@ class EloquentBlogRepository extends BaseRepository implements BlogRepositoryInt
             ->limit($limit)
             ->get();
     }
+
+    /**
+     * Get blogs by user (author)
+     */
+    public function getByUserId(int $userId): Collection
+    {
+        return $this->model
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
 }

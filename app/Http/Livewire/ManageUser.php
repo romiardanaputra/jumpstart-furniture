@@ -2,108 +2,152 @@
 
 namespace App\Http\Livewire;
 
-use App\Models\User as ModelsUsers;
-use Illuminate\Support\Facades\Hash;
+use App\Contracts\Services\UserServiceInterface;
 use Livewire\Component;
 
 class ManageUser extends Component
 {
-    public $user_id;
+    protected UserServiceInterface $userService;
 
-    public $user;
+    public ?int $user_id = null;
 
-    public $first_name;
+    public string $first_name = '';
 
-    public $last_name;
+    public string $last_name = '';
 
-    public $contact;
+    public string $contact = '';
 
-    public $email;
+    public string $email = '';
 
-    public $role;
+    public string $role = '';
 
-    public $password;
+    public string $password = '';
 
-    public $password_confirmation;
+    public string $password_confirmation = '';
 
-    public $title_form = 'Create User';
+    public string $title_form = 'Create User';
 
-    public function store_or_update_user()
+    /**
+     * Boot lifecycle hook for dependency injection
+     */
+    public function boot(UserServiceInterface $userService): void
+    {
+        $this->userService = $userService;
+    }
+
+    /**
+     * Store or update user
+     */
+    public function storeOrUpdateUser(): mixed
     {
         if ($this->user_id) {
+            // Update existing user
             $this->validate([
-                'first_name' => ['required'],
-                'last_name' => ['required'],
+                'first_name' => ['required', 'string', 'max:100'],
+                'last_name' => ['required', 'string', 'max:100'],
                 'contact' => ['required', 'max:15', 'min:10'],
                 'email' => ['required', 'email:rfc,dns'],
-                'role' => ['required'],
+                'role' => ['required', 'in:admin,customer,guest'],
             ]);
-            $user = ModelsUsers::find($this->user_id);
-            $user->update([
-                'first_name' => $this->first_name,
-                'last_name' => $this->last_name,
-                'contact' => $this->contact,
+
+            $this->userService->updateUser($this->user_id, [
+                'first_name' => $this->sanitizeInput($this->first_name),
+                'last_name' => $this->sanitizeInput($this->last_name),
+                'contact' => $this->sanitizeInput($this->contact),
+                'email' => strtolower(trim($this->email)),
                 'role' => $this->role,
             ]);
+
+            session()->flash('message', 'User updated successfully!');
         } else {
+            // Create new user
             $this->validate([
-                'first_name' => ['required'],
-                'last_name' => ['required'],
+                'first_name' => ['required', 'string', 'max:100'],
+                'last_name' => ['required', 'string', 'max:100'],
                 'contact' => ['required', 'unique:users', 'max:15', 'min:10'],
                 'email' => ['required', 'unique:users', 'email:rfc,dns'],
-                'role' => ['required'],
+                'role' => ['required', 'in:admin,customer,guest'],
                 'password' => ['required', 'min:6'],
-                'password_confirmation' => ['required', 'confirmed'],
+                'password_confirmation' => ['required', 'same:password'],
             ]);
-            ModelsUsers::create([
-                'first_name' => $this->first_name,
-                'last_name' => $this->last_name,
-                'contact' => $this->contact,
-                'email' => $this->email,
+
+            $this->userService->createUser([
+                'first_name' => $this->sanitizeInput($this->first_name),
+                'last_name' => $this->sanitizeInput($this->last_name),
+                'contact' => $this->sanitizeInput($this->contact),
+                'email' => strtolower(trim($this->email)),
                 'role' => $this->role,
-                'password' => Hash::make($this->password),
+                'password' => $this->password,
             ]);
+
+            session()->flash('message', 'User created successfully!');
         }
 
         return to_route('manage-user');
     }
 
-    public function edit_user($user_id)
+    /**
+     * Edit user - populate form with existing data
+     */
+    public function editUser(int $userId): void
     {
-        $this->user_id = $user_id;
-        $user = ModelsUsers::find($this->user_id);
-        $this->first_name = $user->first_name;
-        $this->last_name = $user->last_name;
-        $this->contact = $user->contact;
-        $this->email = $user->email;
-        $this->role = $user->role;
-        $this->password = $user->password;
-        $this->title_form = 'Update User '.$user->first_name.' '.$user->last_name;
+        $this->user_id = $userId;
+        $user = $this->userService->getUser($userId);
+
+        if ($user) {
+            $this->first_name = $user->first_name;
+            $this->last_name = $user->last_name;
+            $this->contact = $user->contact;
+            $this->email = $user->email;
+            $this->role = $user->role ?? '';
+            $this->title_form = 'Update User ' . $user->first_name . ' ' . $user->last_name;
+        }
     }
 
-    public function switch_form_to_create()
+    /**
+     * Reset form to create mode
+     */
+    public function switchFormToCreate(): void
     {
-        $this->user_id = '';
-        $this->first_name = '';
-        $this->last_name = '';
-        $this->contact = '';
-        $this->email = '';
-        $this->role = '';
-        $this->password = '';
+        $this->reset([
+            'user_id',
+            'first_name',
+            'last_name',
+            'contact',
+            'email',
+            'role',
+            'password',
+            'password_confirmation',
+        ]);
         $this->title_form = 'Create User';
     }
 
-    public function delete_user($user_id)
+    /**
+     * Delete a user
+     */
+    public function deleteUser(int $userId): mixed
     {
-        ModelsUsers::where('id', $user_id)->delete();
+        $this->userService->deleteUser($userId);
+        session()->flash('message', 'User deleted successfully!');
 
-        return to_route('manage-blog');
+        return to_route('manage-user');
     }
 
+    /**
+     * Sanitize input string
+     */
+    protected function sanitizeInput(string $value): string
+    {
+        return strip_tags(trim($value));
+    }
+
+    /**
+     * Render the component
+     */
     public function render()
     {
         return view('livewire.manage-user', [
-            'users' => ModelsUsers::all(),
+            'users' => $this->userService->getAllUsers(),
         ]);
     }
 }

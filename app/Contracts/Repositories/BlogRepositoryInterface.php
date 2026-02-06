@@ -21,4 +21,9 @@ interface BlogRepositoryInterface extends BaseRepositoryInterface
      * Get recent blogs with limit
      */
     public function getRecent(int $limit = 5): Collection;
+
+    /**
+     * Get blogs by user (author)
+     */
+    public function getByUserId(int $userId): Collection;
 }

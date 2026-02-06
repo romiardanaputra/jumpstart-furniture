@@ -2,7 +2,8 @@
 
 namespace App\Http\Livewire;
 
-use App\Models\Blog as ModelsBlogs;
+use App\Contracts\Services\BlogServiceInterface;
+use Illuminate\Http\UploadedFile;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -10,83 +11,126 @@ class ManageBlog extends Component
 {
     use WithFileUploads;
 
-    public $blog_title;
+    protected BlogServiceInterface $blogService;
 
-    public $blog_tags;
+    public ?int $blog_id = null;
 
-    public $blog_long_description;
+    public string $blog_title = '';
 
-    public $blog_image;
+    public string $blog_tags = '';
 
-    public $blog_id;
+    public string $blog_long_description = '';
 
-    public $blog;
+    /** @var UploadedFile|string|null */
+    public $blog_image = null;
 
-    public $title_page = 'Create';
+    public string $title_page = 'Create';
 
-    protected $rules = [
-        'blog_title' => ['required'],
-        'blog_tags' => ['required'],
-        'blog_long_description' => ['required'],
-        'blog_image' => ['image', 'mimes:jpg,png,jpeg,gif,svg', 'file', 'max:1000'],
+    protected array $rules = [
+        'blog_title' => ['required', 'string', 'max:200'],
+        'blog_tags' => ['required', 'string', 'max:100'],
+        'blog_long_description' => ['required', 'string'],
+        'blog_image' => ['nullable', 'image', 'mimes:jpg,png,jpeg,gif,svg', 'file', 'max:1024'],
     ];
 
-    public function store_or_update_blog()
+    /**
+     * Boot lifecycle hook for dependency injection
+     */
+    public function boot(BlogServiceInterface $blogService): void
+    {
+        $this->blogService = $blogService;
+    }
+
+    /**
+     * Store or update blog
+     */
+    public function storeOrUpdateBlog(): mixed
     {
         $this->validate();
+
+        $imageFile = $this->blog_image instanceof UploadedFile ? $this->blog_image : null;
+
         if ($this->blog_id) {
-            $blog = ModelsBlogs::find($this->blog_id);
-            $blog->update([
-                'blog_title' => $this->blog_title,
-                'blog_tags' => $this->blog_tags,
+            // Update existing blog
+            $this->blogService->updateBlog($this->blog_id, [
+                'blog_title' => $this->sanitizeInput($this->blog_title),
+                'blog_tags' => $this->sanitizeInput($this->blog_tags),
                 'blog_long_description' => $this->blog_long_description,
-                'blog_image' => $this->blog_image->store('blog_image'),
-            ]);
+            ], $imageFile);
+
+            session()->flash('message', 'Blog updated successfully!');
         } else {
-            ModelsBlogs::create([
+            // Create new blog
+            $this->blogService->createBlog([
                 'user_id' => auth()->user()->id,
-                'blog_title' => $this->blog_title,
-                'blog_tags' => $this->blog_tags,
+                'blog_title' => $this->sanitizeInput($this->blog_title),
+                'blog_tags' => $this->sanitizeInput($this->blog_tags),
                 'blog_long_description' => $this->blog_long_description,
-                'blog_image' => $this->blog_image->store('blog_image'),
-            ]);
+            ], $imageFile);
+
+            session()->flash('message', 'Blog created successfully!');
         }
 
         return to_route('manage-blog');
     }
 
-    public function edit_blog($id)
+    /**
+     * Edit blog - populate form with existing data
+     */
+    public function editBlog(int $id): void
     {
         $this->blog_id = $id;
-        $blog = ModelsBlogs::find($this->blog_id);
-        $this->blog_title = $blog->blog_title;
-        $this->title_page = 'Edit '.$blog->blog_title;
-        $this->blog_tags = $blog->blog_tags;
-        $this->blog_long_description = $blog->blog_long_description;
-        $this->blog_image = $blog->blog_image;
+        $blog = $this->blogService->getBlog($id);
+
+        if ($blog) {
+            $this->blog_title = $blog->blog_title;
+            $this->blog_tags = $blog->blog_tags;
+            $this->blog_long_description = $blog->blog_long_description;
+            $this->title_page = 'Edit ' . $blog->blog_title;
+        }
     }
 
-    public function switch_to_create()
+    /**
+     * Reset form to create mode
+     */
+    public function switchToCreate(): void
     {
-        $this->blog_id = '';
-        $this->blog_title = '';
-        $this->blog_tags = '';
-        $this->blog_long_description = '';
-        $this->blog_image = '';
+        $this->reset([
+            'blog_id',
+            'blog_title',
+            'blog_tags',
+            'blog_long_description',
+            'blog_image',
+        ]);
         $this->title_page = 'Create';
     }
 
-    public function delete_blog($id)
+    /**
+     * Delete a blog
+     */
+    public function deleteBlog(int $id): mixed
     {
-        ModelsBlogs::where('blog_id', $id)->delete();
+        $this->blogService->deleteBlog($id);
+        session()->flash('message', 'Blog deleted successfully!');
 
         return to_route('manage-blog');
     }
 
+    /**
+     * Sanitize input string
+     */
+    protected function sanitizeInput(string $value): string
+    {
+        return strip_tags(trim($value));
+    }
+
+    /**
+     * Render the component
+     */
     public function render()
     {
         return view('livewire.manage-blog', [
-            'blogs' => ModelsBlogs::all(),
+            'blogs' => $this->blogService->getAllBlogs(),
         ]);
     }
 }

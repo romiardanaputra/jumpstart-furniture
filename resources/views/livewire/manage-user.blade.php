@@ -2,7 +2,7 @@
 <div>
     <section class="container w-1/2 mx-auto py-[100px]">
         <p class="text-[28px] font-rufina font-semibold text-gray-500 capitalize">{{ $title_form }}</p>
-        <form wire:submit.prevent="store_or_update_user">
+        <form wire:submit.prevent="storeOrUpdateUser">
             <div class="w-full flex flex-row space-x-5 py-4">
                 <div class="w-full">
                     <div class="relative w-full">
@@ -129,7 +129,7 @@
             @endif
         </button>
         @if ($title_form !== 'Create User' )
-        <button wire:click="switch_form_to_create" type="button"
+        <button wire:click="switchFormToCreate" type="button"
             class="text-white bg-[#F4841A] hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium text-sm px-[3rem] py-3 mr-5 mb-2 mt-[40px] hover:scale-110 transition duration-300 ease-in-out uppercase">
             Cancel
         </button>
@@ -184,9 +184,9 @@
                             {{ $user->role }}
                         </td>
                         <td class="py-6 px-10 flex">
-                            <i wire:click="delete_user({{ $user->id }})"
+                            <i wire:click="deleteUser({{ $user->id }})"
                                 class="fa-solid fa-trash pr-2 cursor-pointer"></i>
-                            <i wire:click="edit_user({{ $user->id }})"
+                            <i wire:click="editUser({{ $user->id }})"
                                 class="fa-solid fa-pen-to-square cursor-pointer"></i>
                         </td>
                     </tr>

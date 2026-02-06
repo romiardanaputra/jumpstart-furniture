@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -11,35 +12,51 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Products table indexes
-        Schema::table('products', function (Blueprint $table) {
-            $table->index('product_type', 'idx_products_type');
-            $table->index('product_vendor', 'idx_products_vendor');
-            $table->index('product_availability', 'idx_products_availability');
-            $table->index(['product_type', 'product_availability'], 'idx_products_type_availability');
-        });
+        // Products table indexes - check if not exists
+        $this->addIndexIfNotExists('products', 'product_type', 'idx_products_type');
+        $this->addIndexIfNotExists('products', 'product_vendor', 'idx_products_vendor');
+        $this->addIndexIfNotExists('products', 'product_availability', 'idx_products_availability');
 
         // Carts table indexes
-        Schema::table('carts', function (Blueprint $table) {
-            $table->index('user_id', 'idx_carts_user_id');
-            $table->index('product_id', 'idx_carts_product_id');
-            $table->index(['user_id', 'product_id'], 'idx_carts_user_product');
-        });
+        $this->addIndexIfNotExists('carts', 'user_id', 'idx_carts_user_id');
+        $this->addIndexIfNotExists('carts', 'product_id', 'idx_carts_product_id');
 
-        // Checkouts table indexes and idempotency column
-        Schema::table('checkouts', function (Blueprint $table) {
-            $table->string('idempotency_key', 64)->nullable()->unique()->after('payment_status');
-            $table->index('user_id', 'idx_checkouts_user_id');
-            $table->index('payment_status', 'idx_checkouts_payment_status');
-            $table->index(['user_id', 'payment_status'], 'idx_checkouts_user_status');
-        });
+        // Checkouts - add payment_status column
+        if (!Schema::hasColumn('checkouts', 'payment_status')) {
+            Schema::table('checkouts', function (Blueprint $table) {
+                $table->string('payment_status', 50)->default('pending')->after('payment_total');
+            });
+        }
 
-        // Users table indexes (for role-based queries)
-        Schema::table('users', function (Blueprint $table) {
-            if (Schema::hasColumn('users', 'role')) {
-                $table->index('role', 'idx_users_role');
-            }
-        });
+        // Checkouts - add idempotency_key column
+        if (!Schema::hasColumn('checkouts', 'idempotency_key')) {
+            Schema::table('checkouts', function (Blueprint $table) {
+                $table->string('idempotency_key', 64)->nullable()->after('payment_total');
+            });
+        }
+
+        // Checkouts indexes
+        $this->addIndexIfNotExists('checkouts', 'user_id', 'idx_checkouts_user_id');
+        $this->addIndexIfNotExists('checkouts', 'payment_status', 'idx_checkouts_payment_status');
+
+        // Users role index
+        if (Schema::hasColumn('users', 'role')) {
+            $this->addIndexIfNotExists('users', 'role', 'idx_users_role');
+        }
+    }
+
+    /**
+     * Add index if it doesn't exist
+     */
+    private function addIndexIfNotExists(string $table, string $column, string $indexName): void
+    {
+        $indexes = collect(DB::select("SHOW INDEX FROM {$table}"))->pluck('Key_name')->toArray();
+        
+        if (!in_array($indexName, $indexes)) {
+            Schema::table($table, function (Blueprint $table) use ($column, $indexName) {
+                $table->index($column, $indexName);
+            });
+        }
     }
 
     /**
@@ -47,31 +64,46 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->dropIndex('idx_products_type');
-            $table->dropIndex('idx_products_vendor');
-            $table->dropIndex('idx_products_availability');
-            $table->dropIndex('idx_products_type_availability');
-        });
+        // Drop indexes safely
+        $this->dropIndexIfExists('products', 'idx_products_type');
+        $this->dropIndexIfExists('products', 'idx_products_vendor');
+        $this->dropIndexIfExists('products', 'idx_products_availability');
+        
+        $this->dropIndexIfExists('carts', 'idx_carts_user_id');
+        $this->dropIndexIfExists('carts', 'idx_carts_product_id');
+        
+        $this->dropIndexIfExists('checkouts', 'idx_checkouts_user_id');
+        $this->dropIndexIfExists('checkouts', 'idx_checkouts_payment_status');
 
-        Schema::table('carts', function (Blueprint $table) {
-            $table->dropIndex('idx_carts_user_id');
-            $table->dropIndex('idx_carts_product_id');
-            $table->dropIndex('idx_carts_user_product');
-        });
+        // Drop columns
+        if (Schema::hasColumn('checkouts', 'idempotency_key')) {
+            Schema::table('checkouts', function (Blueprint $table) {
+                $table->dropColumn('idempotency_key');
+            });
+        }
 
-        Schema::table('checkouts', function (Blueprint $table) {
-            $table->dropColumn('idempotency_key');
-            $table->dropIndex('idx_checkouts_user_id');
-            $table->dropIndex('idx_checkouts_payment_status');
-            $table->dropIndex('idx_checkouts_user_status');
-        });
+        if (Schema::hasColumn('checkouts', 'payment_status')) {
+            Schema::table('checkouts', function (Blueprint $table) {
+                $table->dropColumn('payment_status');
+            });
+        }
 
-        Schema::table('users', function (Blueprint $table) {
-            if (Schema::hasColumn('users', 'role')) {
-                $table->dropIndex('idx_users_role');
-            }
-        });
+        if (Schema::hasColumn('users', 'role')) {
+            $this->dropIndexIfExists('users', 'idx_users_role');
+        }
+    }
+
+    /**
+     * Drop index if exists
+     */
+    private function dropIndexIfExists(string $table, string $indexName): void
+    {
+        $indexes = collect(DB::select("SHOW INDEX FROM {$table}"))->pluck('Key_name')->toArray();
+        
+        if (in_array($indexName, $indexes)) {
+            Schema::table($table, function (Blueprint $table) use ($indexName) {
+                $table->dropIndex($indexName);
+            });
+        }
     }
 };
-

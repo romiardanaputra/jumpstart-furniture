@@ -2,7 +2,7 @@
 <div>
     <section class="container w-1/2 mx-auto py-[100px]">
         <p class="text-[28px] font-open-sans font-semibold text-gray-500">{{ $title_page }}</p>
-        <form wire:submit.prevent="store_or_update_blog">
+        <form wire:submit.prevent="storeOrUpdateBlog">
             {{-- row 1 --}}
             <div class="flex flex-row justify-center space-x-5 py-5">
                 <div class="w-full flex flex-row space-x-5">
@@ -107,7 +107,7 @@
                 @endif
             </button>
             @if($title_page !== 'Create')
-            <button wire:click="switch_to_create" type="button"
+            <button wire:click="switchToCreate" type="button"
                 class="text-white bg-[#F4841A] hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium text-sm px-[3rem] py-3 mr-2 mb-2 mt-[40px] hover:scale-110 transition duration-300 ease-in-out uppercase">
                 Cancel
             </button>
@@ -163,9 +163,9 @@
                             {{ $blog->user->first_name }} {{ $blog->user->last_name }}
                         </td>
                         <td class="py-6 px-10 flex">
-                            <i wire:click="delete_blog({{ $blog->blog_id }})"
+                            <i wire:click="deleteBlog({{ $blog->blog_id }})"
                                 class="fa-solid fa-trash pr-2 cursor-pointer"></i>
-                            <i wire:click="edit_blog({{ $blog->blog_id }})"
+                            <i wire:click="editBlog({{ $blog->blog_id }})"
                                 class="fa-solid fa-pen-to-square cursor-pointer"></i>
                         </td>
                     </tr>

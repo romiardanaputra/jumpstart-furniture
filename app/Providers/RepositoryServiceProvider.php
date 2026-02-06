@@ -22,11 +22,15 @@ use App\Repositories\EloquentBlogRepository;
 use App\Contracts\Services\PaymentServiceInterface;
 use App\Contracts\Services\ProductServiceInterface;
 use App\Contracts\Services\CartServiceInterface;
+use App\Contracts\Services\UserServiceInterface;
+use App\Contracts\Services\BlogServiceInterface;
 
 // Service Implementations
 use App\Services\PaymentService;
 use App\Services\ProductService;
 use App\Services\CartService;
+use App\Services\UserService;
+use App\Services\BlogService;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
@@ -48,6 +52,8 @@ class RepositoryServiceProvider extends ServiceProvider
         PaymentServiceInterface::class => PaymentService::class,
         ProductServiceInterface::class => ProductService::class,
         CartServiceInterface::class => CartService::class,
+        UserServiceInterface::class => UserService::class,
+        BlogServiceInterface::class => BlogService::class,
     ];
 
     /**
