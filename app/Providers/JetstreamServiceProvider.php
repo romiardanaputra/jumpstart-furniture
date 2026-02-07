@@ -15,7 +15,7 @@ class JetstreamServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        \Illuminate\Support\Facades\View::addLocation(resource_path('views/features'));
     }
 
     /**
@@ -28,6 +28,35 @@ class JetstreamServiceProvider extends ServiceProvider
         $this->configurePermissions();
 
         Jetstream::deleteUsersUsing(DeleteUser::class);
+
+        // Fortify Custom View Paths
+        \Laravel\Fortify\Fortify::loginView(function () {
+            return view('features.auth.login');
+        });
+
+        \Laravel\Fortify\Fortify::registerView(function () {
+            return view('features.auth.register');
+        });
+
+        \Laravel\Fortify\Fortify::verifyEmailView(function () {
+            return view('features.auth.verify-email');
+        });
+
+        \Laravel\Fortify\Fortify::resetPasswordView(function ($request) {
+            return view('features.auth.reset-password', ['request' => $request]);
+        });
+
+        \Laravel\Fortify\Fortify::requestPasswordResetLinkView(function () {
+            return view('features.auth.forgot-password');
+        });
+
+        \Laravel\Fortify\Fortify::confirmPasswordView(function () {
+            return view('features.auth.confirm-password');
+        });
+
+        \Laravel\Fortify\Fortify::twoFactorChallengeView(function () {
+            return view('features.auth.two-factor-challenge');
+        });
     }
 
     /**
