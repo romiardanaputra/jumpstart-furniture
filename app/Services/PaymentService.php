@@ -109,7 +109,7 @@ class PaymentService extends BaseService implements PaymentServiceInterface
                     'shipping_price' => $paymentData['shipping_price'],
                     'shipping_method' => $paymentData['shipping_method'],
                     'payment_status' => 'pending', // Set to pending for Xendit
-                    'payment_total_per_item' => $cartItem->total_price,
+                    'payment_total' => $cartItem->total_price,
                     'xendit_invoice_id' => $invoice['invoice_id'],
                     'xendit_external_id' => $externalId,
                 ], $idempotencyKey . '_' . $cartItem->cart_id);

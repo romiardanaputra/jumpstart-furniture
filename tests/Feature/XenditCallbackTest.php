@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Sku;
 use App\Models\Checkout;
 use App\Models\Category;
+use App\Models\Cart;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Tests\TestCase;
@@ -57,15 +58,23 @@ class XenditCallbackTest extends TestCase
             'sku_stock' => 10
         ]);
 
+        $cart = Cart::create([
+            'user_id' => $user->id,
+            'product_id' => $product->product_id,
+            'sku_id' => $sku->sku_id,
+            'quantity' => 1,
+            'total_price' => 1000000,
+        ]);
+
         $externalId = 'INV-TEST-' . uniqid();
 
         Checkout::create([
             'user_id' => $user->id,
             'product_id' => $product->product_id,
             'sku_id' => $sku->sku_id,
-            'cart_id' => 1,
+            'cart_id' => $cart->cart_id,
             'payment_status' => 'pending',
-            'payment_total_per_item' => 1000000,
+            'payment_total' => 1000000,
             'xendit_external_id' => $externalId,
             'shipping_address' => 'Test Address',
             'shipping_price' => 50000,
@@ -106,15 +115,23 @@ class XenditCallbackTest extends TestCase
             'sku_stock' => 10
         ]);
 
+        $cart = Cart::create([
+            'user_id' => $user->id,
+            'product_id' => $product->product_id,
+            'sku_id' => $sku->sku_id,
+            'quantity' => 1,
+            'total_price' => 1000000,
+        ]);
+
         $externalId = 'INV-EXPIRED-' . uniqid();
 
         Checkout::create([
             'user_id' => $user->id,
             'product_id' => $product->product_id,
             'sku_id' => $sku->sku_id,
-            'cart_id' => 1,
+            'cart_id' => $cart->cart_id,
             'payment_status' => 'pending',
-            'payment_total_per_item' => 1000000,
+            'payment_total' => 1000000,
             'xendit_external_id' => $externalId,
             'shipping_address' => 'Test Address',
             'shipping_price' => 50000,

@@ -44,7 +44,7 @@ class Checkout extends Model
         'shipping_price',
         'shipping_method',
         'payment_status',
-        'payment_total_per_item',
+        'payment_total',
         'stripe_charge_id',
         'xendit_invoice_id',
         'xendit_external_id',
