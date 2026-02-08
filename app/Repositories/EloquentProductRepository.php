@@ -18,7 +18,7 @@ class EloquentProductRepository extends BaseRepository implements ProductReposit
      */
     public function allWithRelations(): Collection
     {
-        return $this->model->with(['user', 'cart'])->get();
+        return $this->model->with(['user', 'cart', 'skus', 'category'])->get();
     }
 
     /**
@@ -28,7 +28,7 @@ class EloquentProductRepository extends BaseRepository implements ProductReposit
     {
         return $this->model
             ->where('product_type', $type)
-            ->with(['user'])
+            ->with(['user', 'skus', 'category'])
             ->get();
     }
 
@@ -39,7 +39,7 @@ class EloquentProductRepository extends BaseRepository implements ProductReposit
     {
         return $this->model
             ->where('product_vendor', $vendor)
-            ->with(['user'])
+            ->with(['user', 'skus', 'category'])
             ->get();
     }
 
@@ -50,7 +50,7 @@ class EloquentProductRepository extends BaseRepository implements ProductReposit
     {
         return $this->model
             ->where('product_availability', true)
-            ->with(['user'])
+            ->with(['user', 'skus', 'category', 'skus.attributeValues'])
             ->get();
     }
 
@@ -62,7 +62,7 @@ class EloquentProductRepository extends BaseRepository implements ProductReposit
         return $this->model
             ->where('product_name', 'LIKE', "%{$query}%")
             ->orWhere('product_tags', 'LIKE', "%{$query}%")
-            ->with(['user'])
+            ->with(['user', 'skus', 'category'])
             ->get();
     }
 }

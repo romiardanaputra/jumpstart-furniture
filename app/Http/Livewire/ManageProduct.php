@@ -93,6 +93,25 @@ class ManageProduct extends Component
     }
 
     /**
+     * Apply bulk updates to all SKUs in the current form
+     */
+    public function bulkUpdateSkus(string $type, $value): void
+    {
+        foreach ($this->skus as $index => $sku) {
+            if ($type === 'price') {
+                $this->skus[$index]['sku_price'] = (float) $value;
+            } elseif ($type === 'stock') {
+                $this->skus[$index]['sku_stock'] = (int) $value;
+            } elseif ($type === 'price_adjust') {
+                // Adjust by percentage (e.g., 1.1 for 10% increase)
+                $this->skus[$index]['sku_price'] = round($this->skus[$index]['sku_price'] * (float) $value);
+            }
+        }
+        
+        session()->flash('message', 'Bulk update applied to variations.');
+    }
+
+    /**
      * Sanitize input before processing
      */
     protected function sanitizeInput(): void

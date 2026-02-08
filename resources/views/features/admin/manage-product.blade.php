@@ -35,9 +35,26 @@
             <div class="space-y-6">
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-semibold">Product Variations (SKUs)</h3>
-                    <x-ui.button type="button" wire:click="addSku" variant="outline" size="sm">
-                        + Add Variation
-                    </x-ui.button>
+                    <div class="flex items-center gap-2">
+                        <div x-data="{ open: false }" class="relative">
+                            <x-ui.button type="button" @click="open = !open" variant="outline" size="sm">
+                                Bulk Actions
+                                <svg class="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 9l-7 7-7-7"/></svg>
+                            </x-ui.button>
+                            <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-background border border-border z-50">
+                                <div class="py-1">
+                                    <button type="button" wire:click="bulkUpdateSkus('price', {{ $product_price ?? 0 }})" class="block w-full text-left px-4 py-2 text-sm hover:bg-muted">Sync with Base Price</button>
+                                    <button type="button" wire:click="bulkUpdateSkus('price_adjust', 1.1)" class="block w-full text-left px-4 py-2 text-sm hover:bg-muted">Increase Price 10%</button>
+                                    <button type="button" wire:click="bulkUpdateSkus('price_adjust', 0.9)" class="block w-full text-left px-4 py-2 text-sm hover:bg-muted">Decrease Price 10%</button>
+                                    <div class="border-t border-border"></div>
+                                    <button type="button" wire:click="bulkUpdateSkus('stock', 0)" class="block w-full text-left px-4 py-2 text-sm hover:bg-muted text-destructive">Clear All Stock</button>
+                                </div>
+                            </div>
+                        </div>
+                        <x-ui.button type="button" wire:click="addSku" variant="outline" size="sm">
+                            + Add Variation
+                        </x-ui.button>
+                    </div>
                 </div>
 
                 @if(empty($skus))
