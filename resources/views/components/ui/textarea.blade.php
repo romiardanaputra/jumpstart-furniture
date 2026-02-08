@@ -1,6 +1,6 @@
 @props([
-    'name',
-    'label',
+    'name' => null,
+    'label' => null,
     'rows' => 4,
     'value' => '',
     'error' => null,

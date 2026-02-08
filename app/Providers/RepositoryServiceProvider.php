@@ -13,6 +13,7 @@ use App\Contracts\Repositories\BlogRepositoryInterface;
 use App\Contracts\Repositories\SkuRepositoryInterface;
 use App\Contracts\Repositories\CategoryRepositoryInterface;
 use App\Contracts\Repositories\ReviewRepositoryInterface;
+use App\Contracts\Repositories\WishlistRepositoryInterface;
 
 // Repository Implementations
 use App\Repositories\EloquentProductRepository;
@@ -23,6 +24,7 @@ use App\Repositories\EloquentBlogRepository;
 use App\Repositories\EloquentSkuRepository;
 use App\Repositories\EloquentCategoryRepository;
 use App\Repositories\EloquentReviewRepository;
+use App\Repositories\EloquentWishlistRepository;
 
 // Service Interfaces
 use App\Contracts\Services\PaymentServiceInterface;
@@ -33,6 +35,7 @@ use App\Contracts\Services\BlogServiceInterface;
 use App\Contracts\Services\InventoryServiceInterface;
 use App\Contracts\Services\LogisticsServiceInterface;
 use App\Contracts\Services\ReviewServiceInterface;
+use App\Contracts\Services\WishlistServiceInterface;
 
 // Service Implementations
 use App\Services\PaymentService;
@@ -43,6 +46,7 @@ use App\Services\BlogService;
 use App\Services\InventoryService;
 use App\Services\LogisticsService;
 use App\Services\ReviewService;
+use App\Services\WishlistService;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
@@ -62,6 +66,7 @@ class RepositoryServiceProvider extends ServiceProvider
         SkuRepositoryInterface::class => EloquentSkuRepository::class,
         CategoryRepositoryInterface::class => EloquentCategoryRepository::class,
         ReviewRepositoryInterface::class => EloquentReviewRepository::class,
+        WishlistRepositoryInterface::class => EloquentWishlistRepository::class,
 
         // Service bindings
         PaymentServiceInterface::class => PaymentService::class,
@@ -71,7 +76,8 @@ class RepositoryServiceProvider extends ServiceProvider
         BlogServiceInterface::class => BlogService::class,
         InventoryServiceInterface::class => InventoryService::class,
         LogisticsServiceInterface::class => LogisticsService::class,
-        ReviewServiceInterface::class => ReviewService::class, // Added
+        ReviewServiceInterface::class => ReviewService::class,
+        WishlistServiceInterface::class => WishlistService::class, // Added
     ];
 
     /**

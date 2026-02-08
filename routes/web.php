@@ -17,6 +17,7 @@ use App\Http\Livewire\Register;
 use App\Http\Livewire\Shipping;
 use App\Http\Livewire\ShoppingCart;
 use App\Http\Livewire\Term;
+use App\Http\Livewire\WishlistPage;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Livewire\Shop;
@@ -44,6 +45,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     })->name('dashboard');
 
     Route::middleware('role:member')->group(function () {
+        Route::get('wishlist', WishlistPage::class)->name('wishlist');
         Route::get('shopping-cart', ShoppingCart::class)->name('shopping-cart');
         Route::get('info-status', InfoStatus::class)->name('info-status');
         Route::get('shipping', Shipping::class)->name('shipping');

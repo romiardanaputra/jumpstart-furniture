@@ -27,6 +27,10 @@
                 <span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md">{{ $product->product_discount }}% OFF</span>
             </div>
         @endif
+
+        <div class="absolute top-4 right-4 z-10">
+            @livewire('wishlist-button', ['productId' => $product->product_id, 'variant' => 'icon'], key('wishlist-'.$product->product_id))
+        </div>
     </div>
 
     <!-- Content -->
