@@ -19,8 +19,7 @@ class EloquentBlogRepository extends BaseRepository implements BlogRepositoryInt
     public function getPublished(): Collection
     {
         return $this->model
-            ->whereNotNull('published_at')
-            ->orderBy('published_at', 'desc')
+            ->orderBy('created_at', 'desc')
             ->get();
     }
 
@@ -55,5 +54,21 @@ class EloquentBlogRepository extends BaseRepository implements BlogRepositoryInt
             ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->get();
+    }
+
+    /**
+     * Find blog by slug
+     */
+    public function findBySlug(string $slug): ?Blog
+    {
+        return $this->model->where('blog_slug', $slug)->first();
+    }
+
+    /**
+     * Update blog by slug
+     */
+    public function updateBySlug(string $slug, array $data): bool
+    {
+        return $this->model->where('blog_slug', $slug)->update($data);
     }
 }

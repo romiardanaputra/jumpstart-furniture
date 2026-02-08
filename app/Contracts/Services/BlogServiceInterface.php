@@ -19,6 +19,11 @@ interface BlogServiceInterface
     public function getBlog(int $blogId): ?Model;
 
     /**
+     * Get blog by Slug
+     */
+    public function getBlogBySlug(string $slug): ?Model;
+
+    /**
      * Create a new blog
      */
     public function createBlog(array $data, ?UploadedFile $image = null): Model;

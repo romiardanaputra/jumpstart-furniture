@@ -26,4 +26,14 @@ interface BlogRepositoryInterface extends BaseRepositoryInterface
      * Get blogs by user (author)
      */
     public function getByUserId(int $userId): Collection;
+
+    /**
+     * Find blog by slug
+     */
+    public function findBySlug(string $slug): ?Blog;
+
+    /**
+     * Update blog by slug
+     */
+    public function updateBySlug(string $slug, array $data): bool;
 }

@@ -35,6 +35,14 @@ class BlogService extends BaseService implements BlogServiceInterface
     }
 
     /**
+     * Get blog by Slug
+     */
+    public function getBlogBySlug(string $slug): ?Model
+    {
+        return $this->blogRepo->findBySlug($slug);
+    }
+
+    /**
      * Create a new blog
      */
     public function createBlog(array $data, ?UploadedFile $image = null): Model
@@ -50,8 +58,9 @@ class BlogService extends BaseService implements BlogServiceInterface
             $blog = $this->blogRepo->create($sanitizedData);
 
             $this->logAction('Blog created', [
-                'blog_id' => $blog->blog_id ?? $blog->id,
+                'blog_id' => $blog->blog_id,
                 'title' => $blog->blog_title,
+                'slug' => $blog->blog_slug,
             ]);
 
             return $blog;
@@ -71,7 +80,7 @@ class BlogService extends BaseService implements BlogServiceInterface
                 // Delete old image
                 $blog = $this->blogRepo->findById($blogId);
                 if ($blog && $blog->blog_image) {
-                    Storage::delete($blog->blog_image);
+                    Storage::delete('public/' . $blog->blog_image);
                 }
                 
                 $sanitizedData['blog_image'] = $this->uploadImage($image);
@@ -96,7 +105,7 @@ class BlogService extends BaseService implements BlogServiceInterface
             // Delete image first
             $blog = $this->blogRepo->findById($blogId);
             if ($blog && $blog->blog_image) {
-                Storage::delete($blog->blog_image);
+                Storage::delete('public/' . $blog->blog_image);
             }
 
             $deleted = $this->blogRepo->delete($blogId);
@@ -140,22 +149,35 @@ class BlogService extends BaseService implements BlogServiceInterface
     {
         $sanitized = [];
 
-        if (isset($data['blog_title'])) {
-            $sanitized['blog_title'] = strip_tags(trim($data['blog_title']));
-        }
+        $simpleFields = [
+            'blog_title', 
+            'blog_tags', 
+            'meta_description', 
+            'meta_image'
+        ];
 
-        if (isset($data['blog_tags'])) {
-            $sanitized['blog_tags'] = strip_tags(trim($data['blog_tags']));
+        foreach ($simpleFields as $field) {
+            if (isset($data[$field])) {
+                $sanitized[$field] = strip_tags(trim($data[$field]));
+            }
         }
 
         if (isset($data['blog_long_description'])) {
             // Allow some safe HTML for blog content
-            $allowed = '<p><br><strong><em><ul><ol><li><h2><h3><h4><a>';
+            $allowed = '<p><br><strong><em><ul><ol><li><h2><h3><h4><a><img><iframe><div><span>';
             $sanitized['blog_long_description'] = strip_tags(trim($data['blog_long_description']), $allowed);
         }
 
         if (isset($data['user_id'])) {
             $sanitized['user_id'] = (int) $data['user_id'];
+        }
+
+        if (isset($data['blog_category_id'])) {
+            $sanitized['blog_category_id'] = (int) $data['blog_category_id'];
+        }
+
+        if (isset($data['related_products'])) {
+            $sanitized['related_products'] = $data['related_products']; // Passed as array, cast handled by model
         }
 
         return $sanitized;

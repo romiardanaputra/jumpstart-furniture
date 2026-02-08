@@ -14,12 +14,13 @@ class ManageBlog extends Component
     protected BlogServiceInterface $blogService;
 
     public ?int $blog_id = null;
+    public ?int $blog_category_id = null;
 
     public string $blog_title = '';
-
     public string $blog_tags = '';
-
     public string $blog_long_description = '';
+    public string $meta_description = '';
+    public array $related_products = []; // Array of Product IDs
 
     /** @var UploadedFile|string|null */
     public $blog_image = null;
@@ -29,8 +30,11 @@ class ManageBlog extends Component
     protected array $rules = [
         'blog_title' => ['required', 'string', 'max:200'],
         'blog_tags' => ['required', 'string', 'max:100'],
+        'blog_category_id' => ['nullable', 'exists:blog_categories,category_id'],
         'blog_long_description' => ['required', 'string'],
+        'meta_description' => ['nullable', 'string', 'max:160'],
         'blog_image' => ['nullable', 'image', 'mimes:jpg,png,jpeg,gif,svg', 'file', 'max:1024'],
+        'related_products' => ['nullable', 'array'],
     ];
 
     /**
@@ -50,24 +54,21 @@ class ManageBlog extends Component
 
         $imageFile = $this->blog_image instanceof UploadedFile ? $this->blog_image : null;
 
-        if ($this->blog_id) {
-            // Update existing blog
-            $this->blogService->updateBlog($this->blog_id, [
-                'blog_title' => $this->sanitizeInput($this->blog_title),
-                'blog_tags' => $this->sanitizeInput($this->blog_tags),
-                'blog_long_description' => $this->blog_long_description,
-            ], $imageFile);
+        $payload = [
+            'user_id' => auth()->user()->id,
+            'blog_category_id' => $this->blog_category_id,
+            'blog_title' => $this->sanitizeInput($this->blog_title),
+            'blog_tags' => $this->sanitizeInput($this->blog_tags),
+            'blog_long_description' => $this->blog_long_description,
+            'meta_description' => $this->sanitizeInput($this->meta_description),
+            'related_products' => $this->related_products,
+        ];
 
+        if ($this->blog_id) {
+            $this->blogService->updateBlog($this->blog_id, $payload, $imageFile);
             session()->flash('message', 'Blog updated successfully!');
         } else {
-            // Create new blog
-            $this->blogService->createBlog([
-                'user_id' => auth()->user()->id,
-                'blog_title' => $this->sanitizeInput($this->blog_title),
-                'blog_tags' => $this->sanitizeInput($this->blog_tags),
-                'blog_long_description' => $this->blog_long_description,
-            ], $imageFile);
-
+            $this->blogService->createBlog($payload, $imageFile);
             session()->flash('message', 'Blog created successfully!');
         }
 
@@ -84,8 +85,11 @@ class ManageBlog extends Component
 
         if ($blog) {
             $this->blog_title = $blog->blog_title;
+            $this->blog_category_id = $blog->blog_category_id;
             $this->blog_tags = $blog->blog_tags;
             $this->blog_long_description = $blog->blog_long_description;
+            $this->meta_description = $blog->meta_description ?? '';
+            $this->related_products = $blog->related_products ?? [];
             $this->title_page = 'Edit ' . $blog->blog_title;
         }
     }
@@ -97,10 +101,13 @@ class ManageBlog extends Component
     {
         $this->reset([
             'blog_id',
+            'blog_category_id',
             'blog_title',
             'blog_tags',
             'blog_long_description',
+            'meta_description',
             'blog_image',
+            'related_products',
         ]);
         $this->title_page = 'Create';
     }
@@ -131,6 +138,8 @@ class ManageBlog extends Component
     {
         return view('features.admin.manage-blog', [
             'blogs' => $this->blogService->getAllBlogs(),
+            'categories' => \App\Models\BlogCategory::all(),
+            'availableProducts' => \App\Models\Product::orderBy('product_name')->get(),
         ]);
     }
 }

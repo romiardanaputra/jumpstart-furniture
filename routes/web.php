@@ -29,7 +29,7 @@ Route::get('product-detail/{product_id}', ProductDetail::class)->name('product-d
 Route::get('about', About::class)->name('about');
 Route::get('term', Term::class)->name('term');
 Route::get('blog', Blog::class)->name('blog');
-Route::get('blog/{blog_id}', BlogDetail::class)->name('blog-detail');
+Route::get('blog/{slug}', BlogDetail::class)->name('blog-detail');
 Route::get('contact', Contact::class)->name('contact');
 
 // only guest can access
