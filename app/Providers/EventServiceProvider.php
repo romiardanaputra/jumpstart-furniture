@@ -23,6 +23,9 @@ class EventServiceProvider extends ServiceProvider
         CartUpdated::class => [
             VerifyStock::class,
         ],
+        \App\Events\LowStockDetected::class => [
+            \App\Listeners\NotifyAdminOfLowStock::class,
+        ],
     ];
 
     /**

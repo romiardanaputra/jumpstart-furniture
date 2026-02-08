@@ -5,6 +5,7 @@
 @php
 $variants = [
     'default' => 'border-transparent bg-primary text-primary-foreground hover:bg-primary/80',
+    'primary' => 'border-transparent bg-primary text-primary-foreground hover:bg-primary/80', // Tambahkan ini
     'secondary' => 'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
     'outline' => 'text-foreground',
     'destructive' => 'border-transparent bg-red-500 text-slate-50 hover:bg-red-500/80',

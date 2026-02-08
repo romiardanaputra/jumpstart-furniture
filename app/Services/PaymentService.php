@@ -16,13 +16,16 @@ class PaymentService extends BaseService implements PaymentServiceInterface
 {
     protected CartRepositoryInterface $cartRepo;
     protected CheckoutRepositoryInterface $checkoutRepo;
+    protected \App\Contracts\Services\InventoryServiceInterface $inventoryService;
 
     public function __construct(
         CartRepositoryInterface $cartRepo,
-        CheckoutRepositoryInterface $checkoutRepo
+        CheckoutRepositoryInterface $checkoutRepo,
+        \App\Contracts\Services\InventoryServiceInterface $inventoryService
     ) {
         $this->cartRepo = $cartRepo;
         $this->checkoutRepo = $checkoutRepo;
+        $this->inventoryService = $inventoryService;
     }
 
     /**
@@ -100,6 +103,11 @@ class PaymentService extends BaseService implements PaymentServiceInterface
                     ], $idempotencyKey . '_' . $cartItem->cart_id);
                     
                     $checkouts[] = $checkout;
+
+                    // Deduct stock
+                    if ($cartItem->sku_id) {
+                        $this->inventoryService->deductStock($cartItem->sku_id, 1);
+                    }
                 }
 
                 // Clear cart after successful payment

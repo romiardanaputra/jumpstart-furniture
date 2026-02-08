@@ -77,6 +77,10 @@ class ProductService extends BaseService
 
             $product = $this->productRepo->create($data);
 
+            if (isset($data['skus'])) {
+                $this->syncSkus($product->product_id, $data['skus']);
+            }
+
             $this->clearProductCache();
 
             $this->logAction('Product created', [
@@ -100,6 +104,10 @@ class ProductService extends BaseService
 
             $updated = $this->productRepo->update($productId, $data);
 
+            if (isset($data['skus'])) {
+                $this->syncSkus($productId, $data['skus']);
+            }
+
             if ($updated) {
                 $this->clearProductCache();
 
@@ -113,11 +121,44 @@ class ProductService extends BaseService
     }
 
     /**
+     * Synchronize SKUs and their attributes for a product
+     */
+    public function syncSkus(int $productId, array $skusData): void
+    {
+        $product = $this->productRepo->findById($productId);
+        if (!$product) return;
+
+        // Simplified sync for demo: Delete existing if we want total overwrite
+        // In production, we would diff by SKU code
+        $product->skus()->delete();
+
+        foreach ($skusData as $skuData) {
+            $sku = $product->skus()->create([
+                'sku_code' => $skuData['sku_code'],
+                'sku_price' => $skuData['sku_price'],
+                'sku_stock' => $skuData['sku_stock'],
+                'low_stock_threshold' => $skuData['low_stock_threshold'] ?? 5,
+                'sku_weight' => $skuData['sku_weight'] ?? 0,
+                'sku_dimensions' => $skuData['sku_dimensions'] ?? [],
+            ]);
+
+            if (isset($skuData['attribute_values'])) {
+                $sku->attributeValues()->sync($skuData['attribute_values']);
+            }
+        }
+    }
+
+    /**
      * Delete product
      */
     public function deleteProduct(int $productId): bool
     {
         return $this->handleTransaction(function () use ($productId) {
+            $product = $this->productRepo->findById($productId);
+            if ($product) {
+                $product->skus()->delete(); // Clean up SKUs
+            }
+            
             $deleted = $this->productRepo->delete($productId);
 
             if ($deleted) {

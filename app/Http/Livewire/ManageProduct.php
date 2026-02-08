@@ -10,17 +10,15 @@ class ManageProduct extends Component
 {
     use WithFileUploads;
 
+    public ?int $category_id = null;
     public string $product_name = '';
     public ?float $product_rating = null;
     public ?float $product_price = null;
     public string $product_short_description = '';
     public string $product_type = '';
-    public string $product_sku = '';
     public string $product_vendor = '';
     public string $product_availability = '';
     public string $product_tags = '';
-    public string $product_color = '';
-    public string $product_material = '';
     public string $product_long_description = '';
     public string $product_shipping_and_return = '';
     public $product_image;
@@ -28,7 +26,12 @@ class ManageProduct extends Component
     public ?int $product_id = null;
     public string $title_form = 'Create Product';
 
+    // Variation State
+    public array $skus = [];
+    public $availableAttributes = [];
+
     protected ProductService $productService;
+    protected $categoryRepo;
 
     /**
      * Validation rules with better security
@@ -54,9 +57,39 @@ class ManageProduct extends Component
     /**
      * Boot method for dependency injection
      */
-    public function boot(ProductService $productService): void
-    {
+    public function boot(
+        ProductService $productService,
+        \App\Contracts\Repositories\CategoryRepositoryInterface $categoryRepo
+    ): void {
         $this->productService = $productService;
+        $this->categoryRepo = $categoryRepo;
+    }
+
+    public function updatedCategoryId($value)
+    {
+        if ($value) {
+            $category = $this->categoryRepo->findById($value, ['attributes.values']);
+            $this->availableAttributes = $category ? $category->attributes : [];
+        } else {
+            $this->availableAttributes = [];
+        }
+    }
+
+    public function addSku()
+    {
+        $this->skus[] = [
+            'sku_code' => '',
+            'sku_price' => $this->product_price ?? 0,
+            'sku_stock' => 0,
+            'low_stock_threshold' => 5,
+            'attribute_values' => []
+        ];
+    }
+
+    public function removeSku($index)
+    {
+        unset($this->skus[$index]);
+        $this->skus = array_values($this->skus);
     }
 
     /**
@@ -81,20 +114,19 @@ class ManageProduct extends Component
         $this->sanitizeInput();
 
         $data = [
+            'category_id' => $this->category_id,
             'product_name' => $this->product_name,
             'product_rating' => $this->product_rating,
             'product_price' => $this->product_price,
             'product_short_description' => $this->product_short_description,
             'product_type' => $this->product_type,
-            'product_sku' => $this->product_sku,
             'product_vendor' => $this->product_vendor,
             'product_availability' => $this->product_availability,
             'product_tags' => $this->product_tags,
-            'product_color' => $this->product_color,
-            'product_material' => $this->product_material,
             'product_long_description' => $this->product_long_description,
             'product_shipping_and_return' => $this->product_shipping_and_return,
             'product_discount' => $this->product_discount,
+            'skus' => $this->skus,
         ];
 
         // Get image file if uploaded
@@ -129,20 +161,32 @@ class ManageProduct extends Component
         }
 
         $this->title_form = 'Update Product ' . $product->product_name;
+        $this->category_id = $product->category_id;
         $this->product_name = $product->product_name;
         $this->product_rating = $product->product_rating;
         $this->product_price = $product->product_price;
         $this->product_short_description = $product->product_short_description;
         $this->product_type = $product->product_type;
-        $this->product_sku = $product->product_sku;
         $this->product_vendor = $product->product_vendor;
         $this->product_availability = $product->product_availability;
         $this->product_tags = $product->product_tags;
-        $this->product_color = $product->product_color;
-        $this->product_material = $product->product_material;
         $this->product_long_description = $product->product_long_description;
         $this->product_shipping_and_return = $product->product_shipping_and_return;
         $this->product_discount = $product->product_discount;
+
+        // Load SKUs
+        $this->skus = $product->skus->map(function($sku) {
+            return [
+                'sku_code' => $sku->sku_code,
+                'sku_price' => $sku->sku_price,
+                'sku_stock' => $sku->sku_stock,
+                'low_stock_threshold' => $sku->low_stock_threshold,
+                'attribute_values' => $sku->attributeValues->pluck('attribute_value_id')->toArray(),
+            ];
+        })->toArray();
+
+        // Load attributes
+        $this->updatedCategoryId($this->category_id);
     }
 
     /**
@@ -152,21 +196,21 @@ class ManageProduct extends Component
     {
         $this->reset([
             'product_id',
+            'category_id',
             'product_name',
             'product_rating',
             'product_price',
             'product_short_description',
             'product_type',
-            'product_sku',
             'product_vendor',
             'product_availability',
             'product_tags',
-            'product_color',
-            'product_material',
             'product_long_description',
             'product_shipping_and_return',
             'product_discount',
             'product_image',
+            'skus',
+            'availableAttributes'
         ]);
         $this->title_form = 'Create Product';
     }
@@ -188,6 +232,7 @@ class ManageProduct extends Component
     {
         return view('features.admin.manage-product', [
             'products' => $this->productService->getAllProducts(),
+            'categories' => $this->categoryRepo->all(),
         ]);
     }
 }

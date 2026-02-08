@@ -16,6 +16,7 @@ class Sku extends Model
         'sku_code',
         'sku_price',
         'sku_stock',
+        'low_stock_threshold',
         'sku_weight',
         'sku_dimensions',
     ];
@@ -24,6 +25,7 @@ class Sku extends Model
         'sku_dimensions' => 'array',
         'sku_price' => 'integer',
         'sku_stock' => 'integer',
+        'low_stock_threshold' => 'integer',
         'sku_weight' => 'decimal:2',
     ];
 
