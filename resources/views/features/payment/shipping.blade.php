@@ -14,12 +14,21 @@
                         value="{{ $data_shipping[0]->user->contact }}" readonly>
                 </div>
                 <div class="mb-6">
+                    <x-ui.select 
+                        name="selected_city" 
+                        label="Select City" 
+                        :options="$this->cityOptions" 
+                        wire:model="selected_city"
+                        required
+                    />
+                </div>
+                <div class="mb-6">
                     <label for="shipping_address"
-                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white capitalize">ship
-                        to</label>
-                    <input type="text" id="shipping_address"
+                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white capitalize">detailed address</label>
+                    <textarea id="shipping_address"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm  focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        wire:model="shipping_address" readonly>
+                        wire:model="shipping_address" 
+                        placeholder="Street name, Building number, etc."></textarea>
                 </div>
                 <div class="mb-6 py-6">
                     <label class="block mb-6 text-lg font-medium text-gray-900 dark:text-white capitalize">
