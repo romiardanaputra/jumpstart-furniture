@@ -21,15 +21,15 @@ class XenditCallbackTest extends TestCase
         Config::set('services.xendit.callback_token', 'test_token');
     }
 
-    protected function createFullProduct($user, $category)
+    protected function createFullProduct($user, $category, $skuCode = 'SOFA-001')
     {
         return Product::create([
             'user_id' => $user->id,
             'category_id' => $category->category_id,
-            'product_name' => 'Test Sofa',
+            'product_name' => 'Test Sofa ' . $skuCode,
             'product_price' => 1000000,
             'product_type' => 'Furniture',
-            'product_sku' => 'SOFA-001',
+            'product_sku' => $skuCode,
             'product_vendor' => 'JumpStart',
             'product_availability' => 'In Stock',
             'product_tags' => 'sofa,test',
@@ -47,17 +47,17 @@ class XenditCallbackTest extends TestCase
     public function handles_paid_invoice_webhook_successfully()
     {
         $user = User::factory()->create();
-        $category = Category::create(['category_name' => 'Test', 'category_slug' => 'test']);
-        $product = $this->createFullProduct($user, $category);
+        $category = Category::create(['category_name' => 'Paid Cat', 'category_slug' => 'paid-cat-' . uniqid()]);
+        $product = $this->createFullProduct($user, $category, 'PAID-SKU-' . uniqid());
         
         $sku = Sku::create([
             'product_id' => $product->product_id,
-            'sku_code' => 'TEST-SKU',
-            'price' => 1000000,
-            'stock' => 10
+            'sku_code' => 'TEST-SKU-PAID-' . uniqid(),
+            'sku_price' => 1000000,
+            'sku_stock' => 10
         ]);
 
-        $externalId = 'INV-TEST-123';
+        $externalId = 'INV-TEST-' . uniqid();
 
         Checkout::create([
             'user_id' => $user->id,
@@ -89,24 +89,24 @@ class XenditCallbackTest extends TestCase
             'payment_status' => 'paid'
         ]);
 
-        $this->assertEquals(9, $sku->fresh()->stock);
+        $this->assertEquals(9, $sku->fresh()->sku_stock);
     }
 
     /** @test */
     public function handles_expired_invoice_webhook()
     {
         $user = User::factory()->create();
-        $category = Category::create(['category_name' => 'Test', 'category_slug' => 'test']);
-        $product = $this->createFullProduct($user, $category);
+        $category = Category::create(['category_name' => 'Exp Cat', 'category_slug' => 'exp-cat-' . uniqid()]);
+        $product = $this->createFullProduct($user, $category, 'EXP-SKU-' . uniqid());
         
         $sku = Sku::create([
             'product_id' => $product->product_id,
-            'sku_code' => 'TEST-SKU',
-            'price' => 1000000,
-            'stock' => 10
+            'sku_code' => 'TEST-SKU-EXP-' . uniqid(),
+            'sku_price' => 1000000,
+            'sku_stock' => 10
         ]);
 
-        $externalId = 'INV-EXPIRED-JKL';
+        $externalId = 'INV-EXPIRED-' . uniqid();
 
         Checkout::create([
             'user_id' => $user->id,
