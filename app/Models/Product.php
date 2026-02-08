@@ -27,6 +27,7 @@ class Product extends Model
 
     protected $fillable = [
         'user_id',
+        'category_id',
         'product_name',
         'product_rating',
         'product_price',
@@ -40,7 +41,17 @@ class Product extends Model
         'product_material',
         'product_long_description',
         'product_shipping_and_return',
-        'product_discount',
         'product_image',
+        'product_discount',
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id', 'category_id');
+    }
+
+    public function skus()
+    {
+        return $this->hasMany(Sku::class, 'product_id', 'product_id');
+    }
 }

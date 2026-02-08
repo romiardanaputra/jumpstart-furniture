@@ -11,12 +11,17 @@ class Checkout extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id', 'product_id');
+    }
+
+    public function sku()
+    {
+        return $this->belongsTo(Sku::class, 'sku_id', 'sku_id');
     }
 
     public function cart()
@@ -33,11 +38,13 @@ class Checkout extends Model
     protected $fillable = [
         'user_id',
         'product_id',
+        'sku_id',
         'cart_id',
         'shipping_address',
         'shipping_price',
         'shipping_method',
         'payment_status',
-        'payment_total_per_item'
+        'payment_total_per_item',
+        'stripe_charge_id',
     ];
 }

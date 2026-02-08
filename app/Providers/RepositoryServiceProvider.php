@@ -10,6 +10,7 @@ use App\Contracts\Repositories\CartRepositoryInterface;
 use App\Contracts\Repositories\CheckoutRepositoryInterface;
 use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Contracts\Repositories\BlogRepositoryInterface;
+use App\Contracts\Repositories\SkuRepositoryInterface;
 
 // Repository Implementations
 use App\Repositories\EloquentProductRepository;
@@ -17,6 +18,7 @@ use App\Repositories\EloquentCartRepository;
 use App\Repositories\EloquentCheckoutRepository;
 use App\Repositories\EloquentUserRepository;
 use App\Repositories\EloquentBlogRepository;
+use App\Repositories\EloquentSkuRepository;
 
 // Service Interfaces
 use App\Contracts\Services\PaymentServiceInterface;
@@ -47,6 +49,7 @@ class RepositoryServiceProvider extends ServiceProvider
         CheckoutRepositoryInterface::class => EloquentCheckoutRepository::class,
         UserRepositoryInterface::class => EloquentUserRepository::class,
         BlogRepositoryInterface::class => EloquentBlogRepository::class,
+        SkuRepositoryInterface::class => EloquentSkuRepository::class,
 
         // Service bindings
         PaymentServiceInterface::class => PaymentService::class,

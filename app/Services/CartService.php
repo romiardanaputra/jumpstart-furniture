@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Contracts\Repositories\CartRepositoryInterface;
 use App\Contracts\Repositories\ProductRepositoryInterface;
+use App\Contracts\Repositories\SkuRepositoryInterface;
+use App\Events\CartUpdated;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,13 +13,16 @@ class CartService extends BaseService
 {
     protected CartRepositoryInterface $cartRepo;
     protected ProductRepositoryInterface $productRepo;
+    protected SkuRepositoryInterface $skuRepo;
 
     public function __construct(
         CartRepositoryInterface $cartRepo,
-        ProductRepositoryInterface $productRepo
+        ProductRepositoryInterface $productRepo,
+        SkuRepositoryInterface $skuRepo
     ) {
         $this->cartRepo = $cartRepo;
         $this->productRepo = $productRepo;
+        $this->skuRepo = $skuRepo;
     }
 
     /**
@@ -39,27 +44,31 @@ class CartService extends BaseService
     /**
      * Add item to cart
      */
-    public function addToCart(int $userId, int $productId, int $quantity = 1): Model
+    public function addToCart(int $userId, int $productId, int $skuId, int $quantity = 1): Model
     {
-        return $this->handleTransaction(function () use ($userId, $productId, $quantity) {
-            $product = $this->productRepo->findById($productId);
+        return $this->handleTransaction(function () use ($userId, $productId, $skuId, $quantity) {
+            $sku = $this->skuRepo->findById($skuId);
 
-            if (!$product) {
-                throw new \Exception('Product not found');
+            if (!$sku || $sku->product_id !== $productId) {
+                throw new \Exception('Invalid SKU or variation for this product');
             }
 
-            $price = $product->product_price;
+            $price = $sku->sku_price;
+            $product = $sku->product;
 
-            // Apply discount if exists
+            // Apply discount if exists on parent product
             if ($product->product_discount > 0) {
                 $price = $price * (1 - ($product->product_discount / 100));
             }
 
-            $cartItem = $this->cartRepo->addItem($userId, $productId, $quantity, $price);
+            $cartItem = $this->cartRepo->addItem($userId, $productId, $skuId, $quantity, $price);
+
+            event(new CartUpdated($cartItem));
 
             $this->logAction('Item added to cart', [
                 'user_id' => $userId,
                 'product_id' => $productId,
+                'sku_id' => $skuId,
                 'quantity' => $quantity,
             ]);
 
@@ -74,6 +83,11 @@ class CartService extends BaseService
     {
         return $this->handleTransaction(function () use ($cartId, $quantity) {
             $updated = $this->cartRepo->updateQuantity($cartId, $quantity);
+
+            $cart = $this->cartRepo->findById($cartId);
+            if ($cart) {
+                event(new CartUpdated($cart));
+            }
 
             $this->logAction('Cart quantity updated', [
                 'cart_id' => $cartId,
@@ -145,18 +159,25 @@ class CartService extends BaseService
      */
     public function incrementQuantity(int $cartId, int $productId): bool
     {
-        $cart = $this->cartRepo->findById($cartId);
+        $cart = $this->cartRepo->findById($cartId, ['sku']);
         
-        if (!$cart || $cart->quantity >= 10) {
+        if (!$cart || $cart->quantity >= 10 || !$cart->sku) {
             return false;
         }
         
-        $product = $cart->product;
+        $sku = $cart->sku;
+        $price = $sku->sku_price;
+        
+        // Apply discount if exists on parent product
+        if ($sku->product->product_discount > 0) {
+            $price = $price * (1 - ($sku->product->product_discount / 100));
+        }
+
         $newQuantity = $cart->quantity + 1;
         
         return $this->cartRepo->update($cartId, [
             'quantity' => $newQuantity,
-            'total_price' => $newQuantity * $product->product_price,
+            'total_price' => $newQuantity * $price,
         ]);
     }
 
@@ -165,18 +186,25 @@ class CartService extends BaseService
      */
     public function decrementQuantity(int $cartId, int $productId): bool
     {
-        $cart = $this->cartRepo->findById($cartId);
+        $cart = $this->cartRepo->findById($cartId, ['sku']);
         
-        if (!$cart || $cart->quantity <= 1) {
+        if (!$cart || $cart->quantity <= 1 || !$cart->sku) {
             return false;
         }
         
-        $product = $cart->product;
+        $sku = $cart->sku;
+        $price = $sku->sku_price;
+        
+        // Apply discount if exists on parent product
+        if ($sku->product->product_discount > 0) {
+            $price = $price * (1 - ($sku->product->product_discount / 100));
+        }
+
         $newQuantity = $cart->quantity - 1;
         
         return $this->cartRepo->update($cartId, [
             'quantity' => $newQuantity,
-            'total_price' => $newQuantity * $product->product_price,
+            'total_price' => $newQuantity * $price,
         ]);
     }
 

@@ -89,6 +89,7 @@ class PaymentService extends BaseService implements PaymentServiceInterface
                     $checkout = $this->checkoutRepo->createWithIdempotency([
                         'user_id' => $userId,
                         'product_id' => $cartItem->product_id,
+                        'sku_id' => $cartItem->sku_id,
                         'cart_id' => $cartItem->cart_id,
                         'shipping_address' => $paymentData['shipping_address'],
                         'shipping_price' => $paymentData['shipping_price'],

@@ -31,7 +31,19 @@
                                                 <div class="flex items-center space-x-4">
                                                     <img src="{{ asset('storage/'. $cart->product->product_image) }}" alt="{{ $cart->product->product_name }}" 
                                                          class="h-16 w-16 rounded-md object-cover bg-muted/50">
-                                                    <div class="font-medium text-foreground">{{ $cart->product->product_name }}</div>
+                                                    <div>
+                                                        <div class="font-medium text-foreground">{{ $cart->product->product_name }}</div>
+                                                        @if($cart->sku)
+                                                            <div class="flex items-center gap-2 mt-1">
+                                                                @foreach($cart->sku->attributeValues as $val)
+                                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
+                                                                        {{ $val->attribute->attribute_name }}: {{ $val->attribute_value_name }}
+                                                                    </span>
+                                                                @endforeach
+                                                            </div>
+                                                            <div class="text-[10px] text-zinc-400 mt-1 font-mono uppercase">{{ $cart->sku->sku_code }}</div>
+                                                        @endif
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4">
@@ -48,10 +60,10 @@
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4 text-right text-muted-foreground font-medium">
-                                                ${{ number_format($cart->product->product_price, 2) }}
+                                                Rp {{ number_format($cart->total_price / $cart->quantity, 0, ',', '.') }}
                                             </td>
                                             <td class="px-6 py-4 text-right text-foreground font-bold">
-                                                ${{ number_format($cart->total_price, 2) }}
+                                                Rp {{ number_format($cart->total_price, 0, ',', '.') }}
                                             </td>
                                             <td class="px-6 py-4 text-right">
                                                 <button wire:click="deleteCart({{ $cart->cart_id }})" class="p-2 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors">
@@ -81,7 +93,7 @@
                     <div class="space-y-4">
                         <div class="flex items-center justify-between text-muted-foreground">
                             <span>Subtotal</span>
-                            <span class="text-foreground font-medium">${{ number_format($subtotal_payment, 2) }}</span>
+                            <span class="text-foreground font-medium">Rp {{ number_format($subtotal_payment, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex items-center justify-between text-muted-foreground">
                             <span>Shipping</span>
@@ -94,10 +106,10 @@
                         <div class="border-t border-border pt-4 mt-4">
                             <div class="flex items-center justify-between text-lg font-bold">
                                 <span>Total</span>
-                                <span>${{ number_format($subtotal_payment, 2) }}</span>
+                                <span>Rp {{ number_format($subtotal_payment, 0, ',', '.') }}</span>
                             </div>
                         </div>
-                        <x-ui.button wire:click="addSpecialInstruction" class="w-full h-12 text-base mt-4">
+                        <x-ui.button href="{{ route('info-status') }}" class="w-full h-12 text-base mt-4">
                             Checkout Now
                         </x-ui.button>
                         <p class="text-[10px] text-center text-muted-foreground uppercase tracking-widest pt-2">

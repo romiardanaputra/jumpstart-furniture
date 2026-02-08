@@ -20,7 +20,7 @@ interface CartServiceInterface
     /**
      * Add item to cart
      */
-    public function addToCart(int $userId, int $productId, int $quantity = 1): Model;
+    public function addToCart(int $userId, int $productId, int $skuId, int $quantity = 1): Model;
 
     /**
      * Update cart item quantity

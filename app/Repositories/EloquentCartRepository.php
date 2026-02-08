@@ -20,7 +20,7 @@ class EloquentCartRepository extends BaseRepository implements CartRepositoryInt
     {
         return $this->model
             ->where('user_id', $userId)
-            ->with(['product', 'user'])
+            ->with(['product', 'sku.attributeValues.attribute', 'user'])
             ->get();
     }
 
@@ -37,11 +37,12 @@ class EloquentCartRepository extends BaseRepository implements CartRepositoryInt
     /**
      * Add item to cart
      */
-    public function addItem(int $userId, int $productId, int $quantity, float $price): Cart
+    public function addItem(int $userId, int $productId, int $skuId, int $quantity, float $price): Cart
     {
         return $this->model->create([
             'user_id' => $userId,
             'product_id' => $productId,
+            'sku_id' => $skuId,
             'quantity' => $quantity,
             'total_price' => $price * $quantity,
         ]);

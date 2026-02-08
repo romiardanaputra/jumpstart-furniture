@@ -19,19 +19,23 @@ use App\Http\Livewire\ShoppingCart;
 use App\Http\Livewire\Term;
 use Illuminate\Support\Facades\Route;
 
-// only guest can access
-Route::middleware('guest')->group(function () {
-    Route::get('/', Landing::class)->name('landing');
-    Route::get('about', About::class)->name('about');
-    Route::get('term', Term::class)->name('term');
-    Route::get('register', Register::class)->name('register');
-    Route::get('login', Login::class)->name('login');
-});
+use App\Http\Livewire\Shop;
 
-// public
+// Public discovery routes
+Route::get('/', Landing::class)->name('landing');
+Route::get('shop', Shop::class)->name('shop');
+Route::get('product-detail/{product_id}', ProductDetail::class)->name('product-detail');
+Route::get('about', About::class)->name('about');
+Route::get('term', Term::class)->name('term');
 Route::get('blog', Blog::class)->name('blog');
 Route::get('blog/{blog_id}', BlogDetail::class)->name('blog-detail');
 Route::get('contact', Contact::class)->name('contact');
+
+// only guest can access
+Route::middleware('guest')->group(function () {
+    Route::get('register', Register::class)->name('register');
+    Route::get('login', Login::class)->name('login');
+});
 
 // only authenticated user can access
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
@@ -45,7 +49,6 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::get('shipping', Shipping::class)->name('shipping');
         Route::get('payment', Payment::class)->name('payment');
         Route::post('payment', Payment::class)->name('payment-post');
-        Route::get('product-detail/{product_id}', ProductDetail::class)->name('product-detail');
     });
 
     Route::middleware('role:admin')->group(function () {

@@ -20,7 +20,7 @@ interface CartRepositoryInterface extends BaseRepositoryInterface
     /**
      * Add item to cart
      */
-    public function addItem(int $userId, int $productId, int $quantity, float $price): Cart;
+    public function addItem(int $userId, int $productId, int $skuId, int $quantity, float $price): Cart;
 
     /**
      * Update cart item quantity

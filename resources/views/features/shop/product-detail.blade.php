@@ -1,126 +1,117 @@
-<div class="max-w-screen-xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-    {{-- Breadcrumb Navigation --}}
-    <nav class="flex mb-8 text-sm text-muted-foreground" aria-label="Breadcrumb">
-        <ol class="inline-flex items-center space-x-1 md:space-x-3">
-            <li class="inline-flex items-center">
-                <a href="{{ route('home') }}" class="hover:text-foreground transition-colors">Home</a>
-            </li>
-            <li class="flex items-center">
-                <svg class="w-3 h-3 mx-1 text-muted-foreground/50" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                </svg>
-                <a href="#" class="ml-1 hover:text-foreground transition-colors">Products</a>
-            </li>
-            <li aria-current="page" class="flex items-center">
-                <svg class="w-3 h-3 mx-1 text-muted-foreground/50" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                </svg>
-                <span class="ml-1 font-medium text-foreground truncate max-w-[150px] sm:max-w-none">{{ $product->product_name }}</span>
-            </li>
-        </ol>
-    </nav>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-        {{-- Product Image Section --}}
-        <div class="relative aspect-square overflow-hidden rounded-lg bg-muted/30 border border-border">
-            <img src="{{ asset('storage/'.$product->product_image) }}" alt="{{ $product->product_name }}" 
-                 class="h-full w-full object-cover object-center transition-transform hover:scale-105 duration-700">
-            @if($product->product_discount > 0)
-                <div class="absolute top-4 left-4">
-                    <x-ui.badge variant="destructive" class="text-sm px-3 py-1">-{{ $product->product_discount }}%</x-ui.badge>
-                </div>
-            @endif
-        </div>
-
-        {{-- Product Information Section --}}
-        <div class="flex flex-col space-y-6">
-            <div>
-                <x-ui.badge variant="outline" class="mb-4">{{ $product->product_type }}</x-ui.badge>
-                <h1 class="text-3xl sm:text-4xl font-bold text-foreground leading-tight capitalize">{{ $product->product_name }}</h1>
-                
-                <div class="flex items-center mt-4 space-x-4">
-                    <div class="flex items-center text-primary">
-                        @for($i = 0; $i < 5; $i++)
-                            <svg class="w-5 h-5 {{ $i < $product->product_rating ? 'fill-current' : 'text-muted/40' }}" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                        @endfor
-                        <span class="ml-2 text-sm text-muted-foreground">({{ $product->product_rating }}/5.0)</span>
-                    </div>
-                    <span class="text-border">|</span>
-                    <x-ui.badge variant="{{ str_contains(strtolower($product->product_availability), 'in stock') ? 'success' : 'outline' }}">
-                        {{ $product->product_availability }}
-                    </x-ui.badge>
+<div class="py-12 bg-white dark:bg-zinc-950 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="lg:grid lg:grid-cols-2 lg:gap-x-12 lg:items-start">
+            
+            <!-- Image Gallery -->
+            <div class="flex flex-col">
+                <div class="w-full aspect-[4/5] overflow-hidden rounded-3xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                    <img src="{{ asset('storage/' . $product->product_image) }}" 
+                        alt="{{ $product->product_name }}"
+                        onerror="this.src='https://placehold.co/800x1000/18181b/ffffff?text={{ urlencode($product->product_name) }}'"
+                        class="h-full w-full object-cover object-center">
                 </div>
             </div>
 
-            <div class="flex items-baseline space-x-3">
-                <span class="text-3xl font-bold text-foreground">${{ number_format($product->product_price, 2) }}</span>
-                @if($product->product_discount > 0)
-                    <span class="text-xl text-muted-foreground line-through">${{ number_format($product->product_price * (1 + $product->product_discount/100), 2) }}</span>
-                @endif
-            </div>
-
-            <p class="text-muted-foreground leading-relaxed text-lg">
-                {{ $product->product_short_description }}
-            </p>
-
-            <div class="grid grid-cols-2 gap-y-4 text-sm border-y border-border/50 py-6">
-                <div><span class="font-medium text-foreground">SKU:</span> <span class="text-muted-foreground">{{ $product->product_sku }}</span></div>
-                <div><span class="font-medium text-foreground">Color:</span> <span class="text-muted-foreground">{{ $product->product_color }}</span></div>
-                <div><span class="font-medium text-foreground">Vendor:</span> <span class="text-muted-foreground">{{ $product->product_vendor }}</span></div>
-                <div><span class="font-medium text-foreground">Material:</span> <span class="text-muted-foreground">{{ $product->product_material }}</span></div>
-            </div>
-
-            <div class="flex flex-col sm:flex-row gap-4 pt-6">
-                <x-ui.button wire:click="store_cart({{ $product->product_id }}, {{ $product->product_price }})" size="lg" class="flex-1">
-                    Add to Cart
-                </x-ui.button>
-                <x-ui.button wire:click="store_cart_and_buy({{ $product->product_id }}, {{ $product->product_price }})" variant="outline" size="lg" class="flex-1">
-                    Buy it Now
-                </x-ui.button>
-            </div>
-
-            {{-- Accordion Details --}}
-            <div id="product-accordion" class="pt-8 divide-y divide-border">
-                <div x-data="{ open: false }" class="py-4">
-                    <button @click="open = !open" class="flex items-center justify-between w-full text-left font-medium text-foreground hover:text-primary transition-colors">
-                        <span>Description</span>
-                        <svg class="h-4 w-4 transform transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 9l-7 7-7-7"/></svg>
-                    </button>
-                    <div x-show="open" x-collapse x-cloak class="mt-4 text-muted-foreground text-sm leading-relaxed">
-                        {{ $product->product_long_description }}
-                    </div>
-                </div>
-                
-                <div x-data="{ open: false }" class="py-4">
-                    <button @click="open = !open" class="flex items-center justify-between w-full text-left font-medium text-foreground hover:text-primary transition-colors">
-                        <span>Shipping & Returns</span>
-                        <svg class="h-4 w-4 transform transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 9l-7 7-7-7"/></svg>
-                    </button>
-                    <div x-show="open" x-collapse x-cloak class="mt-4 text-muted-foreground text-sm leading-relaxed">
-                        {{ $product->product_shipping_and_return }}
+            <!-- Product Info -->
+            <div class="mt-10 px-4 sm:px-0 sm:mt-16 lg:mt-0">
+                <div class="mb-6">
+                    <nav class="flex mb-4" aria-label="Breadcrumb">
+                        <ol class="flex items-center space-x-2 text-xs text-zinc-500 uppercase tracking-wider">
+                            <li><a href="{{ route('landing') }}" class="hover:text-zinc-900 dark:hover:text-zinc-100">Shop</a></li>
+                            <li><svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg></li>
+                            <li class="text-zinc-900 dark:text-zinc-100">{{ $product->category->category_name }}</li>
+                        </ol>
+                    </nav>
+                    <h1 class="text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-4xl">{{ $product->product_name }}</h1>
+                    
+                    <div class="mt-4 flex items-center gap-4">
+                        <div class="flex items-center gap-1">
+                            @for($i = 0; $i < 5; $i++)
+                                <svg class="h-4 w-4 {{ $i < floor($product->product_rating) ? 'text-yellow-400 fill-current' : 'text-zinc-300' }}" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            @endfor
+                            <span class="ml-2 text-sm text-zinc-500 font-medium">({{ $product->product_rating }} Rating)</span>
+                        </div>
+                        <span class="h-4 w-px bg-zinc-200 dark:bg-zinc-800"></span>
+                        <span class="text-sm text-emerald-600 dark:text-emerald-400 font-semibold">{{ $sku->sku_stock > 0 ? 'In Stock' : 'Out of Stock' }}</span>
                     </div>
                 </div>
 
-                <div x-data="{ open: false }" class="py-4">
-                    <button @click="open = !open" class="flex items-center justify-between w-full text-left font-medium text-foreground hover:text-primary transition-colors">
-                        <span>Product Tags</span>
-                        <svg class="h-4 w-4 transform transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 9l-7 7-7-7"/></svg>
+                <!-- Price -->
+                <div class="mt-6 border-t border-zinc-100 dark:border-zinc-900 pt-6">
+                    <h2 class="sr-only">Product information</h2>
+                    <p class="text-4xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">Rp {{ number_format($sku->sku_price, 0, ',', '.') }}</p>
+                    <p class="mt-4 text-base text-zinc-500 leading-relaxed">{{ $product->product_short_description }}</p>
+                </div>
+
+                <!-- Variation Selectors -->
+                <div class="mt-10 space-y-8">
+                    @foreach($availableAttributes as $name => $data)
+                        <div>
+                            <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider mb-4">{{ $name }}</h3>
+                            <div class="flex flex-wrap gap-3" x-data>
+                                @foreach($data['values'] as $id => $valName)
+                                    <button 
+                                        wire:click="selectAttribute({{ $data['id'] }}, {{ $id }})"
+                                        class="px-5 py-2.5 rounded-xl border-2 text-sm font-medium transition-all duration-200 
+                                        {{ ($selectedAttributes[$data['id']] ?? null) == $id 
+                                            ? 'border-zinc-900 bg-zinc-900 text-white dark:border-white dark:bg-white dark:text-zinc-950 shadow-lg' 
+                                            : 'border-zinc-200 text-zinc-600 dark:border-zinc-800 dark:text-zinc-400 hover:border-zinc-400 dark:hover:border-zinc-600' }}">
+                                        {{ $valName }}
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- Multi-Column Info (Weight / Dimensions) -->
+                <div class="mt-10 grid grid-cols-2 gap-4">
+                    <div class="bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800">
+                        <span class="block text-xs text-zinc-400 uppercase tracking-widest font-bold mb-1">Weight</span>
+                        <span class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{{ $sku->sku_weight }} kg</span>
+                    </div>
+                    <div class="bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800">
+                        <span class="block text-xs text-zinc-400 uppercase tracking-widest font-bold mb-1">Dimensions</span>
+                        <span class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                            {{ $sku->sku_dimensions['length'] ?? '-' }} x 
+                            {{ $sku->sku_dimensions['width'] ?? '-' }} x 
+                            {{ $sku->sku_dimensions['height'] ?? '-' }} cm
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="mt-10 flex flex-col sm:flex-row gap-4">
+                    <div class="flex items-center border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden bg-zinc-50 dark:bg-zinc-900">
+                        <button wire:click="$decrement('quantity')" class="p-4 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                        </button>
+                        <input type="number" wire:model="quantity" class="w-12 text-center bg-transparent border-none text-zinc-900 dark:text-zinc-100 font-bold focus:ring-0">
+                        <button wire:click="$increment('quantity')" class="p-4 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        </button>
+                    </div>
+                    
+                    <button wire:click="addToCart" 
+                        class="flex-1 bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 py-4 px-8 rounded-2xl font-bold hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-zinc-900/10 dark:shadow-none flex items-center justify-center gap-3">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                        Add to Selection
                     </button>
-                    <div x-show="open" x-collapse x-cloak class="mt-4 flex flex-wrap gap-2">
-                        @foreach(explode(',', $product->product_tags) as $tag)
-                            <x-ui.badge variant="secondary" class="rounded-full px-3">{{ trim($tag) }}</x-ui.badge>
-                        @endforeach
+                </div>
+
+                <!-- Descriptions Accordion -->
+                <div class="mt-12 space-y-4 pt-12 border-t border-zinc-100 dark:border-zinc-900">
+                    <div x-data="{ open: true }">
+                        <button @click="open = !open" class="flex items-center justify-between w-full text-left">
+                            <span class="text-sm font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-widest">Description</span>
+                            <svg class="h-5 w-5 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="open" x-collapse class="mt-4 text-sm text-zinc-500 leading-relaxed">
+                            {{ $product->product_long_description }}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    {{-- Related Products Section --}}
-    <section class="mt-24 border-t border-border pt-16">
-        <h2 class="text-2xl font-bold text-foreground mb-8">Related Products</h2>
-        <x-best-product />
-    </section>
 </div>
