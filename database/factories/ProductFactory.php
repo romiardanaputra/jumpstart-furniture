@@ -19,7 +19,7 @@ class ProductFactory extends Factory
     public function definition()
     {
         return [
-            'user_id' => $this->faker->randomElement([1]),
+            'user_id' => \App\Models\User::factory(),
             'product_name' => $this->faker->randomElement(['watch', 'table', 'chair']),
             'product_rating' => $this->faker->randomElement([4, 5]),
             'product_price' => $this->faker->numberBetween(100, 1000),

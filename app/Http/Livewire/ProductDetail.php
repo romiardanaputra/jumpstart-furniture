@@ -12,6 +12,10 @@ class ProductDetail extends Component
     public $selectedSku;
     public $selectedAttributes = [];
     public $quantity = 1;
+    public $reviews = [];
+    public $averageRating = 0;
+
+    protected $listeners = ['reviewAdded' => 'loadReviews'];
 
     public function mount($product_id)
     {
@@ -25,6 +29,18 @@ class ProductDetail extends Component
                 $this->selectedAttributes[$val->attribute->attribute_id] = $val->attribute_value_id;
             }
         }
+
+        $this->loadReviews();
+    }
+
+    public function loadReviews()
+    {
+        $this->reviews = \App\Models\Review::where('product_id', $this->product->product_id)
+            ->with('user')
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        $this->averageRating = $this->reviews->avg('rating') ?? 0;
     }
 
     public function selectAttribute($attributeId, $valueId)
