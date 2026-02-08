@@ -17,15 +17,21 @@ class PaymentService extends BaseService implements PaymentServiceInterface
     protected CartRepositoryInterface $cartRepo;
     protected CheckoutRepositoryInterface $checkoutRepo;
     protected \App\Contracts\Services\InventoryServiceInterface $inventoryService;
+    protected \App\Contracts\Services\LogisticsServiceInterface $logisticsService;
+    protected \App\Services\CartService $cartService; // Added to get weight
 
     public function __construct(
         CartRepositoryInterface $cartRepo,
         CheckoutRepositoryInterface $checkoutRepo,
-        \App\Contracts\Services\InventoryServiceInterface $inventoryService
+        \App\Contracts\Services\InventoryServiceInterface $inventoryService,
+        \App\Contracts\Services\LogisticsServiceInterface $logisticsService,
+        \App\Services\CartService $cartService
     ) {
         $this->cartRepo = $cartRepo;
         $this->checkoutRepo = $checkoutRepo;
         $this->inventoryService = $inventoryService;
+        $this->logisticsService = $logisticsService;
+        $this->cartService = $cartService;
     }
 
     /**
@@ -132,24 +138,26 @@ class PaymentService extends BaseService implements PaymentServiceInterface
     /**
      * Calculate total payment including shipping
      */
-    public function calculateTotal(int $userId, string $shippingMethod): float
+    public function calculateTotal(int $userId, string $shippingMethod, string $destination = 'Jakarta'): float
     {
         $cartTotal = $this->cartRepo->getTotalByUserId($userId);
-        $shippingPrice = $this->getShippingPrice($shippingMethod);
+        $cartWeight = $this->cartService->getCartWeight($userId);
+        
+        $shippingPrice = $this->logisticsService->calculateShippingRate(
+            $destination,
+            $cartWeight,
+            $shippingMethod
+        );
 
         return $cartTotal + $shippingPrice;
     }
 
     /**
-     * Get shipping price based on method
+     * Get shipping price (legacy/helper)
      */
     protected function getShippingPrice(string $shippingMethod): float
     {
-        return match ($shippingMethod) {
-            'exclusive' => 40.00,
-            'standard' => 20.00,
-            default => 20.00,
-        };
+        return 20000; // Fixed flat default
     }
 
     /**

@@ -16,12 +16,17 @@ class EloquentCartRepository extends BaseRepository implements CartRepositoryInt
     /**
      * Get cart items by user ID with product relations
      */
-    public function getByUserId(int $userId): Collection
+    public function getByUserId(int $userId, array $relations = []): Collection
     {
-        return $this->model
-            ->where('user_id', $userId)
-            ->with(['product', 'sku.attributeValues.attribute', 'user'])
-            ->get();
+        $query = $this->model->where('user_id', $userId);
+        
+        if (!empty($relations)) {
+            $query->with($relations);
+        } else {
+            $query->with(['product', 'sku.attributeValues.attribute', 'user']);
+        }
+        
+        return $query->get();
     }
 
     /**

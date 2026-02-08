@@ -30,7 +30,7 @@ class Payment extends Component
         'card_holder_name' => ['required', 'string', 'max:255'],
         'cvv' => ['required', 'string', 'min:3', 'max:4'],
         'expiry' => ['required', 'string', 'regex:/^(0[1-9]|1[0-2])\/([0-9]{2})$/'],
-        'shipping_method' => ['required', 'in:exclusive,standard'],
+        'shipping_method' => ['required', 'in:jne,pos,tiki,exclusive,standard'],
         'shipping_address' => ['required', 'string', 'max:500'],
     ];
 
@@ -57,9 +57,14 @@ class Payment extends Component
      */
     public function mount(): void
     {
-        $this->shipping_method = request()->shipping_method ?? 'standard';
-        $this->shipping_address = request()->shipping_address ?? '';
-        $this->calculateShippingPrice();
+        $this->shipping_method = request()->shipping_method ?? 'jne';
+        $this->shipping_address = request()->shipping_address ?? 'Jakarta';
+        $this->shipping_price = (float) (request()->shipping_price ?? 0);
+        
+        if ($this->shipping_price <= 0) {
+            $this->calculateShippingPrice();
+        }
+        
         $this->calculatePayment();
     }
 
@@ -136,7 +141,10 @@ class Payment extends Component
      */
     public function calculateShippingPrice(): float
     {
-        $this->shipping_price = $this->shipping_method === 'exclusive' ? 40.00 : 20.00;
+        $weight = $this->cartService->getCartWeight(auth()->id());
+        $this->shipping_price = app(\App\Contracts\Services\LogisticsServiceInterface::class)
+            ->calculateShippingRate($this->shipping_address, $weight, $this->shipping_method);
+            
         return $this->shipping_price;
     }
 
@@ -146,7 +154,11 @@ class Payment extends Component
     public function calculatePayment(): float
     {
         $userId = auth()->id();
-        $this->payment = $this->paymentService->calculateTotal($userId, $this->shipping_method);
+        $this->payment = $this->paymentService->calculateTotal(
+            $userId, 
+            $this->shipping_method, 
+            $this->shipping_address
+        );
         return $this->payment;
     }
 

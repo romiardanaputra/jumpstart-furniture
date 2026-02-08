@@ -10,7 +10,7 @@ interface CartRepositoryInterface extends BaseRepositoryInterface
     /**
      * Get cart items by user ID with product relations
      */
-    public function getByUserId(int $userId): Collection;
+    public function getByUserId(int $userId, array $relations = []): Collection;
 
     /**
      * Get cart total for user

@@ -28,6 +28,8 @@ use App\Contracts\Services\ProductServiceInterface;
 use App\Contracts\Services\CartServiceInterface;
 use App\Contracts\Services\UserServiceInterface;
 use App\Contracts\Services\BlogServiceInterface;
+use App\Contracts\Services\InventoryServiceInterface;
+use App\Contracts\Services\LogisticsServiceInterface;
 
 // Service Implementations
 use App\Services\PaymentService;
@@ -35,6 +37,8 @@ use App\Services\ProductService;
 use App\Services\CartService;
 use App\Services\UserService;
 use App\Services\BlogService;
+use App\Services\InventoryService;
+use App\Services\LogisticsService;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
@@ -60,7 +64,8 @@ class RepositoryServiceProvider extends ServiceProvider
         CartServiceInterface::class => CartService::class,
         UserServiceInterface::class => UserService::class,
         BlogServiceInterface::class => BlogService::class,
-        \App\Contracts\Services\InventoryServiceInterface::class => \App\Services\InventoryService::class,
+        InventoryServiceInterface::class => InventoryService::class,
+        LogisticsServiceInterface::class => LogisticsService::class,
     ];
 
     /**

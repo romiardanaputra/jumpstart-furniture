@@ -14,15 +14,18 @@ class CartService extends BaseService
     protected CartRepositoryInterface $cartRepo;
     protected ProductRepositoryInterface $productRepo;
     protected SkuRepositoryInterface $skuRepo;
+    protected \App\Contracts\Services\LogisticsServiceInterface $logisticsService;
 
     public function __construct(
         CartRepositoryInterface $cartRepo,
         ProductRepositoryInterface $productRepo,
-        SkuRepositoryInterface $skuRepo
+        SkuRepositoryInterface $skuRepo,
+        \App\Contracts\Services\LogisticsServiceInterface $logisticsService
     ) {
         $this->cartRepo = $cartRepo;
         $this->productRepo = $productRepo;
         $this->skuRepo = $skuRepo;
+        $this->logisticsService = $logisticsService;
     }
 
     /**
@@ -222,6 +225,33 @@ class CartService extends BaseService
         }
         
         return true;
+    }
+
+    /**
+     * Calculate total chargable weight for the entire cart
+     */
+    public function getCartWeight(int $userId): float
+    {
+        $items = $this->cartRepo->getByUserId($userId, ['sku']);
+        $totalWeight = 0;
+
+        foreach ($items as $item) {
+            if (!$item->sku) continue;
+
+            $sku = $item->sku;
+            $dims = $sku->sku_dimensions ?? ['length' => 0, 'width' => 0, 'height' => 0];
+            
+            $itemWeight = $this->logisticsService->getChargableWeight(
+                (float) ($sku->sku_weight ?? 0),
+                (float) ($dims['length'] ?? 0),
+                (float) ($dims['width'] ?? 0),
+                (float) ($dims['height'] ?? 0)
+            );
+
+            $totalWeight += ($itemWeight * $item->quantity);
+        }
+
+        return $totalWeight;
     }
 
     /**

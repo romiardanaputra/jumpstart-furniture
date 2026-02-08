@@ -22,12 +22,36 @@
                         wire:model="shipping_address" readonly>
                 </div>
                 <div class="mb-6 py-6">
-                    <label for="shipping_method"
-                        class="block mb-6 text-lg font-medium text-gray-900 dark:text-white capitalize">shipping method
+                    <label class="block mb-6 text-lg font-medium text-gray-900 dark:text-white capitalize">
+                        Select Courier
                     </label>
-                    <input type="text" id="shipping_method"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm  focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        wire:model="shipping_method">
+                    <div class="space-y-4">
+                        @foreach($availableCouriers as $courier)
+                            <label class="flex items-center p-4 border border-border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
+                                <input type="radio" wire:model="selectedCourier" value="{{ $courier['code'] }}" class="w-4 h-4 text-primary focus:ring-primary">
+                                <div class="ml-4 flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-medium text-foreground">{{ $courier['name'] }}</span>
+                                        <span class="text-sm font-semibold text-primary">
+                                            Rp {{ number_format($logisticsService->calculateShippingRate($shipping_address, $totalWeight, $courier['code']), 0, ',', '.') }}
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-muted-foreground mt-1">Estimation: 2-3 Days</p>
+                                </div>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="p-6 bg-muted/20 border border-border rounded-lg mb-6">
+                    <div class="flex justify-between items-center">
+                        <span class="text-muted-foreground">Total Weight:</span>
+                        <span class="font-medium">{{ number_format($totalWeight, 2) }} kg</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-muted-foreground">Shipping Fee:</span>
+                        <span class="text-lg font-bold text-primary">Rp {{ number_format($shippingRate, 0, ',', '.') }}</span>
+                    </div>
                 </div>
                 <div class="flex flex-row space-x-5">
                     <button type="submit"
