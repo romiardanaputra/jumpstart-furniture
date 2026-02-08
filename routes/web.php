@@ -3,6 +3,7 @@
 use App\Http\Livewire\About;
 use App\Http\Livewire\AdminDashboard;
 use App\Http\Livewire\Blog;
+use App\Http\Livewire\BlogDetail;
 use App\Http\Livewire\Contact;
 use App\Http\Livewire\InfoStatus;
 use App\Http\Livewire\Landing;
@@ -29,6 +30,7 @@ Route::middleware('guest')->group(function () {
 
 // public
 Route::get('blog', Blog::class)->name('blog');
+Route::get('blog/{blog_id}', BlogDetail::class)->name('blog-detail');
 Route::get('contact', Contact::class)->name('contact');
 
 // only authenticated user can access

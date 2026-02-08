@@ -1,55 +1,60 @@
 
-<div class="pt-[1rem]">
-    <nav class="bg-white border-gray-200 dark:bg-gray-900 py-[1rem] font-open-sans">
-        <div class="flex flex-wrap justify-between items-center mx-auto max-w-screen-2xl px-4 md:px-6 py-2.5">
-            <a href="{{ route('landing') }}" class="flex items-center">
-                <img src="{{ asset('assets/icons/jumpstart-navbar.png') }}" class="h-[25 px] w-[50px] mr-3 sm:h-[50px]" alt="Jumpstart-logo" />
-                <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">JumpStart</span>
+<nav class="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div class="mx-auto flex h-16 max-w-screen-2xl items-center justify-between px-4 sm:px-6">
+        <div class="flex items-center gap-4 sm:gap-6">
+            <a href="{{ route('landing') }}" class="flex items-center space-x-2">
+                <img src="{{ asset('assets/icons/jumpstart-navbar.png') }}" class="h-8 w-auto" alt="Jumpstart-logo" />
+                <span class="inline-block font-bold sm:text-lg">JumpStart</span>
             </a>
-            <div class="flex items-center space-x-[.7rem]">
-                <a href="{!! route('register') !!}">
-                    <button type="button"
-                        class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium text-sm px-5 py-3 mr-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 hover:scale-110 transition duration-100 ease-in-out uppercase text-[14px]">Join
-                        With Us</button>
-                </a>
-                <a href="{!! route('login') !!}">
-                    <button type="button"
-                        class="text-white bg-[#F4841A] hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium text-sm px-5 py-3 mr-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 hover:scale-110 transition duration-300 ease-in-out uppercase text-[14px]">Sign
-                        In</button>
-                </a>
-            </div>
+            
+            {{-- Desktop Nav --}}
+            <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+                <a href="{{ route('landing') }}" class="{{ Request::is('/') ? 'text-foreground' : 'text-muted-foreground' }} transition-colors hover:text-foreground">Home</a>
+                <a href="{{ route('about') }}" class="{{ Request::is('about') ? 'text-foreground' : 'text-muted-foreground' }} transition-colors hover:text-foreground">About</a>
+                <a href="{{ route('contact') }}" class="{{ Request::is('contact') ? 'text-foreground' : 'text-muted-foreground' }} transition-colors hover:text-foreground">Contact</a>
+                <a href="{{ route('blog') }}" class="{{ Request::is('blog') ? 'text-foreground' : 'text-muted-foreground' }} transition-colors hover:text-foreground">News</a>
+            </nav>
         </div>
-    </nav>
-    <nav class="bg-[#F4F4F5] dark:bg-gray-700 py-[1rem]">
-        <div class="max-w-screen-2xl px-4 py-3 mx-auto md:px-6">
-            <div class="flex items-center justify-center">
-                <ul class="flex flex-row mt-0 text-sm font-medium uppercase">
-                    <li>
-                        <a href="{!! route('landing') !!}"
-                            class=" p-[1rem] px-[2rem] dark:text-white  {{ Request::is('/') ? 'bg-[#F4841A] text-white' : 'hover:bg-gray-800 hover:text-white transition duration-300 ease-in-out' }}"
-                            aria-current="page">Home</a>
-                    </li>
-                    <li>
-                        <a href="{!! route('about') !!}"
-                            class="p-[1rem] px-[2rem] dark:text-white {{ Request::is('about') ? 'bg-[#F4841A] text-white' : 'hover:bg-gray-800 hover:text-white transition duration-300 ease-in-out' }}">About
-                            Us</a>
-                    </li>
-                    <li>
-                        <a href="{!! route('contact')!!}"
-                            class="p-[1rem] px-[2rem] dark:text-white {{ Request::is('contact') ? 'bg-[#F4841A] text-white' : 'hover:bg-gray-800 hover:text-white transition duration-300 ease-in-out' }}">Contact
-                            Us</a>
-                    </li>
-                    <li>
-                        <a href="{!! route('term') !!}"
-                            class="p-[1rem] px-[2rem] dark:text-white {{ Request::is('term') ? 'bg-[#F4841A] text-white' : 'hover:bg-gray-800 hover:text-white transition duration-300 ease-in-out' }}">Term
-                            and Condition</a>
-                    </li>
-                    <li>
-                        <a href="{{ route('blog') }}"
-                            class="p-[1rem] px-[2rem] dark:text-white {{ Request::is('blog') ? 'bg-[#F4841A] text-white' : 'hover:bg-gray-800 hover:text-white transition duration-300 ease-in-out' }}">News</a>
-                    </li>
-                </ul>
-            </div>
+
+        <div class="flex items-center gap-2">
+            <a href="{{ route('login') }}" class="hidden sm:block">
+                <x-ui.button variant="ghost" size="sm">Sign In</x-ui.button>
+            </a>
+            <a href="{{ route('register') }}">
+                <x-ui.button size="sm">Join With Us</x-ui.button>
+            </a>
+
+            {{-- Mobile Menu Trigger --}}
+            <button class="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                data-drawer-target="drawer-navigation-guest" data-drawer-show="drawer-navigation-guest" aria-controls="drawer-navigation-guest">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</nav>
+
+{{-- Mobile Sidebar Drawer --}}
+<div id="drawer-navigation-guest" class="fixed top-0 left-0 z-40 h-screen p-4 overflow-y-auto transition-transform -translate-x-full bg-background w-64 border-r border-border" tabindex="-1" aria-labelledby="drawer-guest-label">
+    <h5 id="drawer-guest-label" class="text-base font-semibold text-muted-foreground uppercase tracking-wider mb-6">Menu</h5>
+    <nav class="space-y-2">
+        <a href="{{ route('landing') }}" class="flex items-center p-2 text-foreground rounded-lg hover:bg-accent group transition-colors">
+            <span class="ml-3 font-medium">Home</span>
+        </a>
+        <a href="{{ route('about') }}" class="flex items-center p-2 text-foreground rounded-lg hover:bg-accent group transition-colors">
+            <span class="ml-3 font-medium">About Us</span>
+        </a>
+        <a href="{{ route('contact') }}" class="flex items-center p-2 text-foreground rounded-lg hover:bg-accent group transition-colors">
+            <span class="ml-3 font-medium">Contact Us</span>
+        </a>
+        <a href="{{ route('blog') }}" class="flex items-center p-2 text-foreground rounded-lg hover:bg-accent group transition-colors">
+            <span class="ml-3 font-medium">News</span>
+        </a>
+        <div class="pt-4 border-t border-border">
+            <a href="{{ route('login') }}" class="flex items-center p-2 text-foreground rounded-lg hover:bg-accent group transition-colors">
+                <span class="ml-3 font-medium">Sign In</span>
+            </a>
         </div>
     </nav>
 </div>

@@ -1,116 +1,90 @@
-<div class="pt-[1rem]">
-    <nav class="bg-white border-gray-200 dark:bg-gray-900 py-[1rem] font-open-sans">
-        <div class="flex flex-wrap justify-between items-center mx-auto max-w-screen-2xl px-4 md:px-6 py-2.5">
-            <a href="{{ route('landing') }}" class="flex items-center">
-                <img src="{{ asset('assets/icons/jumpstart-navbar.png') }}" class="h-[25 px] w-[50px] mr-3 sm:h-[50px]"
-                    alt="Jumpstart-logo" />
-                <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">JumpStart</span>
+<nav class="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div class="mx-auto flex h-16 max-w-screen-2xl items-center justify-between px-4 sm:px-6">
+        <div class="flex items-center gap-4 sm:gap-6">
+            <a href="{{ route('landing') }}" class="flex items-center space-x-2">
+                <img src="{{ asset('assets/icons/jumpstart-navbar.png') }}" class="h-8 w-auto" alt="Jumpstart-logo" />
+                <span class="inline-block font-bold sm:text-lg">JumpStart Admin</span>
             </a>
-            <div class="flex items-center space-x-[.7rem]">
-                <!-- Settings Dropdown -->
-                <div class="ml-3 relative">
-                    <x-jet-dropdown align="right" width="48">
-                        <x-slot name="trigger">
-                            @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
-                            <div class="flex items-center space-x-5">
-                                <p class="leading-relaxed capitalize cursor-pointer"><b>Hi, </b>{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</p>
-                                <button
-                                    class="flex justify-center items-center text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-gray-300 transition">
-                                    @if (Auth::user()->profile_photo_path)
-                                    <img class="h-[60px] w-[60px] rounded-full object-cover"
-                                        src="/storage/{{Auth::user()->profile_photo_path }}"
-                                        alt="{{ Auth::user()->first_name }}" />
-                                    @else
-                                    <img class="h-[60px] w-[60px] rounded-full object-cover"
-                                        src="{{Auth::user()->profile_photo_url }}"
-                                        alt="{{ Auth::user()->first_name }}" />
-                                    @endif
-                                </button>
-                            </div>
-                            @else
-                            <span class="inline-flex rounded-md">
-                                <button type="button"
-                                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition">
-                                    {{ Auth::user()->first_name }} {{ auth()->user()->last_name }}
-
-                                    <svg class="ml-2 -mr-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                </button>
-                            </span>
-                            @endif
-                        </x-slot>
-
-                        <x-slot name="content">
-                            <!-- Account Management -->
-                            <div class="block px-4 py-2 text-xs text-gray-400">
-                                {{ __('Manage Account') }}
-                            </div>
-
-                            <x-jet-dropdown-link href="{{ route('profile.show') }}">
-                                {{ __('Profile') }}
-                            </x-jet-dropdown-link>
-
-                            <x-jet-dropdown-link href="{{ route('manage-user') }}">
-                                {{ __('Manage User') }}
-                            </x-jet-dropdown-link>
-
-                            <x-jet-dropdown-link href="{{ route('manage-blog') }}">
-                                {{ __('Manage Blog') }}
-                            </x-jet-dropdown-link>
-
-                            <x-jet-dropdown-link href="{{ route('manage-product') }}">
-                                {{ __('Manage Product') }}
-                            </x-jet-dropdown-link>
-
-                            @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
-                            <x-jet-dropdown-link href="{{ route('api-tokens.index') }}">
-                                {{ __('API Tokens') }}
-                            </x-jet-dropdown-link>
-                            @endif
-
-                            <div class="border-t border-gray-100"></div>
-
-                            <!-- Authentication -->
-                            <form method="POST" action="{{ route('logout') }}" x-data>
-                                @csrf
-
-                                <x-jet-dropdown-link href="{{ route('logout') }}" @click.prevent="$root.submit();">
-                                    {{ __('Log Out') }}
-                                </x-jet-dropdown-link>
-                            </form>
-
-                        </x-slot>
-                    </x-jet-dropdown>
-                </div>
-            </div>
+            
+            {{-- Desktop Nav --}}
+            <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+                <a href="{{ route('dashboard') }}" class="{{ Request::is('dashboard') ? 'text-foreground' : 'text-muted-foreground' }} transition-colors hover:text-foreground">Home</a>
+                <a href="{{ route('contact') }}" class="{{ Request::is('contact') ? 'text-foreground' : 'text-muted-foreground' }} transition-colors hover:text-foreground">Support</a>
+                <a href="{{ route('blog') }}" class="{{ Request::is('blog') ? 'text-foreground' : 'text-muted-foreground' }} transition-colors hover:text-foreground">News</a>
+            </nav>
         </div>
-    </nav>
-    <nav class="bg-[#F4F4F5] dark:bg-gray-700 py-[1rem]">
-        <div class="max-w-screen-2xl px-4 py-3 mx-auto md:px-6">
-            <div class="flex items-center justify-center">
-                <ul class="flex flex-row mt-0 text-sm font-medium uppercase">
-                    <li>
-                        <a href="{!! route('dashboard') !!}"
-                            class=" p-[1rem] px-[2rem] dark:text-white  {{ Request::is('dashboard') ? 'bg-[#F4841A] text-white' : 'hover:bg-gray-800 hover:text-white transition duration-300 ease-in-out' }}"
-                            aria-current="page">Home</a>
-                    </li>
 
-                    <li>
-                        <a href="{!! route('contact')!!}"
-                            class="p-[1rem] px-[2rem] dark:text-white {{ Request::is('contact') ? 'bg-[#F4841A] text-white' : 'hover:bg-gray-800 hover:text-white transition duration-300 ease-in-out' }}">Contact
-                            Us</a>
-                    </li>
+        <div class="flex items-center gap-4">
+            {{-- User Menu --}}
+            <div class="ml-3 relative">
+                <x-jet-dropdown align="right" width="48">
+                    <x-slot name="trigger">
+                        @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
+                            <button class="flex items-center text-sm transition focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-full">
+                                <img class="h-8 w-8 rounded-full object-cover border border-border" 
+                                     src="{{ Auth::user()->profile_photo_url }}" 
+                                     alt="{{ Auth::user()->first_name }}" />
+                            </button>
+                        @else
+                            <button type="button" class="inline-flex items-center px-3 py-2 border border-border text-sm leading-4 font-medium rounded-md text-muted-foreground bg-background hover:text-foreground hover:bg-accent transition ease-in-out duration-150">
+                                Admin: {{ Auth::user()->first_name }}
+                                <svg class="ml-2 -mr-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                        @endif
+                    </x-slot>
 
-                    <li>
-                        <a href="{{ route('blog') }}"
-                            class="p-[1rem] px-[2rem] dark:text-white {{ Request::is('blog') ? 'bg-[#F4841A] text-white' : 'hover:bg-gray-800 hover:text-white transition duration-300 ease-in-out' }}">News</a>
-                    </li>
-                </ul>
+                    <x-slot name="content">
+                        <div class="block px-4 py-2 text-xs text-muted-foreground">{{ __('Administration') }}</div>
+                        <x-jet-dropdown-link href="{{ route('manage-user') }}">{{ __('Manage User') }}</x-jet-dropdown-link>
+                        <x-jet-dropdown-link href="{{ route('manage-blog') }}">{{ __('Manage Blog') }}</x-jet-dropdown-link>
+                        <x-jet-dropdown-link href="{{ route('manage-product') }}">{{ __('Manage Product') }}</x-jet-dropdown-link>
+                        
+                        <div class="border-t border-border"></div>
+                        <div class="block px-4 py-2 text-xs text-muted-foreground">{{ __('Account') }}</div>
+                        <x-jet-dropdown-link href="{{ route('profile.show') }}">{{ __('Profile') }}</x-jet-dropdown-link>
+                        
+                        <div class="border-t border-border"></div>
+                        <form method="POST" action="{{ route('logout') }}" x-data>
+                            @csrf
+                            <x-jet-dropdown-link href="{{ route('logout') }}" @click.prevent="$root.submit();">{{ __('Log Out') }}</x-jet-dropdown-link>
+                        </form>
+                    </x-slot>
+                </x-jet-dropdown>
             </div>
+
+            {{-- Mobile Menu Trigger --}}
+            <button class="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                data-drawer-target="drawer-admin" data-drawer-show="drawer-admin" aria-controls="drawer-admin">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</nav>
+
+{{-- Mobile Sidebar Drawer --}}
+<div id="drawer-admin" class="fixed top-0 left-0 z-40 h-screen p-4 overflow-y-auto transition-transform -translate-x-full bg-background w-64 border-r border-border" tabindex="-1" aria-labelledby="drawer-admin-label">
+    <h5 id="drawer-admin-label" class="text-base font-semibold text-muted-foreground uppercase tracking-wider mb-6">Admin Panel</h5>
+    <nav class="space-y-2">
+        <a href="{{ route('dashboard') }}" class="flex items-center p-2 text-foreground rounded-lg hover:bg-accent group transition-colors">
+            <span class="ml-3 font-medium">Home</span>
+        </a>
+        <a href="{{ route('manage-user') }}" class="flex items-center p-2 text-foreground rounded-lg hover:bg-accent group transition-colors">
+            <span class="ml-3 font-medium">Manage User</span>
+        </a>
+        <a href="{{ route('manage-blog') }}" class="flex items-center p-2 text-foreground rounded-lg hover:bg-accent group transition-colors">
+            <span class="ml-3 font-medium">Manage Blog</span>
+        </a>
+        <a href="{{ route('manage-product') }}" class="flex items-center p-2 text-foreground rounded-lg hover:bg-accent group transition-colors">
+            <span class="ml-3 font-medium">Manage Product</span>
+        </a>
+        <div class="pt-4 border-t border-border">
+            <a href="{{ route('profile.show') }}" class="flex items-center p-2 text-foreground rounded-lg hover:bg-accent group transition-colors">
+                <span class="ml-3 font-medium">Profile</span>
+            </a>
         </div>
     </nav>
 </div>

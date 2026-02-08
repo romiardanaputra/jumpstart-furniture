@@ -13,10 +13,10 @@
 </head>
 
 {{-- bydefault livewire will chose app layout --}}
-<body class="font-open-sans">
+<body class="font-sans antialiased text-foreground bg-background">
     <x-jet-banner />
 
-    <div class="min-h-screen bg-white">
+    <div class="min-h-screen">
         <header>
             @if(!auth()->check())
             <x-navbar/>
@@ -28,7 +28,7 @@
         </header>
 
         <!-- Page Content -->
-        <main class="font-open-sans text-gray-900 antialiased bg-white">
+        <main class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {{ $slot }}
         </main>
         

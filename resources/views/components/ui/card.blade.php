@@ -1,22 +1,18 @@
-@props([
-    'padding' => 'p-6',
-    'shadow' => 'shadow-md',
-])
+@props(['title' => null, 'description' => null])
 
-<div {{ $attributes->merge(['class' => "bg-white dark:bg-gray-800 rounded-lg {$shadow} {$padding}"]) }}>
-    @isset($header)
-        <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
-            {{ $header }}
+<div {{ $attributes->merge(['class' => 'rounded-lg border border-border bg-card text-card-foreground shadow-sm']) }}>
+    @if($title || $description)
+        <div class="flex flex-col space-y-1.5 p-4 sm:p-6"> {{-- p-4 di mobile, p-6 di desktop --}}
+            @if($title)
+                <h3 class="text-lg font-semibold leading-none tracking-tight">{{ $title }}</h3>
+            @endif
+            @if($description)
+                <p class="text-sm text-muted-foreground">{{ $description }}</p>
+            @endif
         </div>
-    @endisset
-
-    <div>
+    @endif
+    
+    <div class="p-4 sm:p-6 pt-0 sm:pt-0">
         {{ $slot }}
     </div>
-
-    @isset($footer)
-        <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
-            {{ $footer }}
-        </div>
-    @endisset
 </div>
