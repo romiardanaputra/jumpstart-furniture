@@ -18,24 +18,27 @@ class PaymentService extends BaseService implements PaymentServiceInterface
     protected CheckoutRepositoryInterface $checkoutRepo;
     protected \App\Contracts\Services\InventoryServiceInterface $inventoryService;
     protected \App\Contracts\Services\LogisticsServiceInterface $logisticsService;
-    protected \App\Services\CartService $cartService; // Added to get weight
+    protected \App\Services\CartService $cartService;
+    protected \App\Contracts\Services\XenditServiceInterface $xenditService;
 
     public function __construct(
         CartRepositoryInterface $cartRepo,
         CheckoutRepositoryInterface $checkoutRepo,
         \App\Contracts\Services\InventoryServiceInterface $inventoryService,
         \App\Contracts\Services\LogisticsServiceInterface $logisticsService,
-        \App\Services\CartService $cartService
+        \App\Services\CartService $cartService,
+        \App\Contracts\Services\XenditServiceInterface $xenditService
     ) {
         $this->cartRepo = $cartRepo;
         $this->checkoutRepo = $checkoutRepo;
         $this->inventoryService = $inventoryService;
         $this->logisticsService = $logisticsService;
         $this->cartService = $cartService;
+        $this->xenditService = $xenditService;
     }
 
     /**
-     * Process payment with idempotency protection
+     * Process payment with Xendit Invoice
      */
     public function processPayment(array $paymentData, string $idempotencyKey): array
     {
@@ -43,95 +46,93 @@ class PaymentService extends BaseService implements PaymentServiceInterface
         $existingCheckout = $this->checkoutRepo->findByIdempotencyKey($idempotencyKey);
         
         if ($existingCheckout) {
-            $this->logAction('Idempotent payment detected', [
-                'idempotency_key' => $idempotencyKey,
-                'checkout_id' => $existingCheckout->id,
-            ]);
-            
             return [
                 'success' => true,
-                'message' => 'Payment already processed',
+                'message' => 'Payment already initiated',
                 'checkout' => $existingCheckout,
-                'idempotent' => true,
+                'invoice_url' => $existingCheckout->xendit_invoice_url ?? '#',
             ];
         }
 
-        // Acquire lock to prevent race conditions
-        return Cache::lock("payment_lock_{$idempotencyKey}", 10)->get(function () use ($paymentData, $idempotencyKey) {
-            return $this->handleTransaction(function () use ($paymentData, $idempotencyKey) {
-                // Initialize Stripe
-                Stripe::setApiKey(config('services.stripe.secret'));
+        return $this->handleTransaction(function () use ($paymentData, $idempotencyKey) {
+            $userId = $paymentData['user_id'];
+            $cartItems = $this->cartRepo->getByUserId($userId);
 
-                $userId = $paymentData['user_id'];
-                $cartItems = $this->cartRepo->getByUserId($userId);
+            if ($cartItems->isEmpty()) {
+                throw new Exception('Cart is empty');
+            }
 
-                if ($cartItems->isEmpty()) {
-                    throw new Exception('Cart is empty');
+            // Prepare item list for Xendit
+            $items = [];
+            foreach ($cartItems as $cartItem) {
+                // Determine item display name (including variation)
+                $variationName = '';
+                if ($cartItem->sku && $cartItem->sku->attributeValues) {
+                    $variationName = ' (' . $cartItem->sku->attributeValues->pluck('value')->implode(', ') . ')';
                 }
 
-                // Create Stripe customer
-                $customer = $this->executeWithRetry(function () use ($paymentData) {
-                    return Customer::create([
-                        'email' => $paymentData['email'],
-                        'name' => $paymentData['name'],
-                    ]);
-                });
-
-                // Create charge with retry
-                $charge = $this->executeWithRetry(function () use ($paymentData, $customer) {
-                    return Charge::create([
-                        'amount' => (int) ($paymentData['amount'] * 100),
-                        'currency' => 'usd',
-                        'customer' => $customer->id,
-                        'source' => 'tok_visa', // In production, use tokenized card
-                        'description' => 'JumpStart Furniture Order',
-                    ]);
-                });
-
-                if (!$charge->paid) {
-                    throw new Exception('Payment was not successful');
-                }
-
-                // Create checkout records for each cart item
-                $checkouts = [];
-                foreach ($cartItems as $cartItem) {
-                    $checkout = $this->checkoutRepo->createWithIdempotency([
-                        'user_id' => $userId,
-                        'product_id' => $cartItem->product_id,
-                        'sku_id' => $cartItem->sku_id,
-                        'cart_id' => $cartItem->cart_id,
-                        'shipping_address' => $paymentData['shipping_address'],
-                        'shipping_price' => $paymentData['shipping_price'],
-                        'shipping_method' => $paymentData['shipping_method'],
-                        'payment_status' => 'paid',
-                        'payment_total_per_item' => $cartItem->total_price,
-                        'stripe_charge_id' => $charge->id,
-                    ], $idempotencyKey . '_' . $cartItem->cart_id);
-                    
-                    $checkouts[] = $checkout;
-
-                    // Deduct stock
-                    if ($cartItem->sku_id) {
-                        $this->inventoryService->deductStock($cartItem->sku_id, 1);
-                    }
-                }
-
-                // Clear cart after successful payment
-                $this->cartRepo->clearByUserId($userId);
-
-                $this->logAction('Payment processed successfully', [
-                    'user_id' => $userId,
-                    'amount' => $paymentData['amount'],
-                    'stripe_charge_id' => $charge->id,
-                ]);
-
-                return [
-                    'success' => true,
-                    'message' => 'Payment successful',
-                    'checkouts' => $checkouts,
-                    'stripe_charge_id' => $charge->id,
+                $items[] = [
+                    'name' => $cartItem->product->product_name . $variationName,
+                    'quantity' => 1,
+                    'price' => (float) $cartItem->total_price,
                 ];
-            });
+            }
+
+            // Add shipping as an item if exists
+            if (isset($paymentData['shipping_price']) && $paymentData['shipping_price'] > 0) {
+                $items[] = [
+                    'name' => 'Shipping (' . ($paymentData['shipping_method'] ?? 'Standard') . ')',
+                    'quantity' => 1,
+                    'price' => (float) $paymentData['shipping_price'],
+                ];
+            }
+
+            // Generate Xendit Invoice
+            $externalId = 'INV-' . $userId . '-' . time();
+            $invoice = $this->xenditService->createInvoice([
+                'external_id' => $externalId,
+                'amount' => (float) $paymentData['amount'],
+                'payer_email' => $paymentData['email'],
+                'description' => 'JumpStart Furniture Order - ' . $paymentData['name'],
+                'items' => $items,
+            ]);
+
+            // Create checkout records (status: pending)
+            $checkouts = [];
+            foreach ($cartItems as $cartItem) {
+                $checkout = $this->checkoutRepo->createWithIdempotency([
+                    'user_id' => $userId,
+                    'product_id' => $cartItem->product_id,
+                    'sku_id' => $cartItem->sku_id,
+                    'cart_id' => $cartItem->cart_id,
+                    'shipping_address' => $paymentData['shipping_address'],
+                    'shipping_price' => $paymentData['shipping_price'],
+                    'shipping_method' => $paymentData['shipping_method'],
+                    'payment_status' => 'pending', // Set to pending for Xendit
+                    'payment_total_per_item' => $cartItem->total_price,
+                    'xendit_invoice_id' => $invoice['invoice_id'],
+                    'xendit_external_id' => $externalId,
+                ], $idempotencyKey . '_' . $cartItem->cart_id);
+                
+                $checkouts[] = $checkout;
+
+                // Lock stock (don't deduct yet, wait for payment callback)
+                // In production, we might want to temporarily reservate stock
+            }
+
+            $this->logAction('Xendit payment initiated', [
+                'user_id' => $userId,
+                'amount' => $paymentData['amount'],
+                'invoice_id' => $invoice['invoice_id'],
+            ]);
+
+            return [
+                'success' => true,
+                'message' => 'Invoice created',
+                'invoice_url' => $invoice['invoice_url'],
+                'invoice_id' => $invoice['invoice_id'],
+                'checkouts' => $checkouts,
+            ];
         });
     }
 

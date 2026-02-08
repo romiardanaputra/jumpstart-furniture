@@ -39,6 +39,7 @@ use App\Contracts\Services\LogisticsServiceInterface;
 use App\Contracts\Services\ReviewServiceInterface;
 use App\Contracts\Services\WishlistServiceInterface;
 use App\Contracts\Services\CouponServiceInterface;
+use App\Contracts\Services\XenditServiceInterface;
 
 // Service Implementations
 use App\Services\PaymentService;
@@ -51,6 +52,7 @@ use App\Services\LogisticsService;
 use App\Services\ReviewService;
 use App\Services\WishlistService;
 use App\Services\CouponService;
+use App\Services\XenditService;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
@@ -84,6 +86,7 @@ class RepositoryServiceProvider extends ServiceProvider
         ReviewServiceInterface::class => ReviewService::class,
         WishlistServiceInterface::class => WishlistService::class,
         CouponServiceInterface::class => CouponService::class,
+        XenditServiceInterface::class => XenditService::class,
     ];
 
     /**

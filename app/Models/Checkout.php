@@ -46,5 +46,7 @@ class Checkout extends Model
         'payment_status',
         'payment_total_per_item',
         'stripe_charge_id',
+        'xendit_invoice_id',
+        'xendit_external_id',
     ];
 }
