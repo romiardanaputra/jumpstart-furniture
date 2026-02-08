@@ -85,6 +85,27 @@
                               placeholder="Any specific requests for delivery or packaging?"
                               class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"></textarea>
                 </div>
+
+                {{-- Coupon Code --}}
+                <div class="p-6 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl mt-6">
+                    <label for="coupon_code" class="text-xs font-black uppercase tracking-widest text-[#F4841A] mb-3 block">Promotion Code</label>
+                    <div class="flex gap-2">
+                        <div class="relative flex-1">
+                            <input type="text" id="coupon_code" wire:model.defer="coupon_code" 
+                                placeholder="Enter coupon code"
+                                class="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#F4841A] focus:border-transparent outline-none transition-all">
+                            @if($coupon_message)
+                                <div class="absolute -bottom-6 left-0 text-[10px] font-bold {{ $is_coupon_valid ? 'text-green-500' : 'text-red-500' }}">
+                                    {{ $coupon_message }}
+                                </div>
+                            @endif
+                        </div>
+                        <button wire:click="applyCoupon" 
+                            class="px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg text-sm">
+                            Apply
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {{-- Order Summary --}}
@@ -95,6 +116,17 @@
                             <span>Subtotal</span>
                             <span class="text-foreground font-medium">Rp {{ number_format($subtotal_payment, 0, ',', '.') }}</span>
                         </div>
+                        
+                        @if($discount_amount > 0)
+                            <div class="flex items-center justify-between text-green-600 dark:text-green-400 font-medium">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 11h.01M7 15h.01M13 7h.01M13 11h.01M13 15h.01M17 7h.01M17 11h.01M17 15h.01"/></svg>
+                                    <span>Discount</span>
+                                </div>
+                                <span>-Rp {{ number_format($discount_amount, 0, ',', '.') }}</span>
+                            </div>
+                        @endif
+
                         <div class="flex items-center justify-between text-muted-foreground">
                             <span>Shipping</span>
                             <span class="text-xs italic">Calculated at checkout</span>
@@ -106,7 +138,7 @@
                         <div class="border-t border-border pt-4 mt-4">
                             <div class="flex items-center justify-between text-lg font-bold">
                                 <span>Total</span>
-                                <span>Rp {{ number_format($subtotal_payment, 0, ',', '.') }}</span>
+                                <span class="text-[#F4841A]">Rp {{ number_format($total_payment, 0, ',', '.') }}</span>
                             </div>
                         </div>
                         <x-ui.button href="{{ route('info-status') }}" class="w-full h-12 text-base mt-4">

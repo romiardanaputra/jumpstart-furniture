@@ -14,6 +14,7 @@ use App\Contracts\Repositories\SkuRepositoryInterface;
 use App\Contracts\Repositories\CategoryRepositoryInterface;
 use App\Contracts\Repositories\ReviewRepositoryInterface;
 use App\Contracts\Repositories\WishlistRepositoryInterface;
+use App\Contracts\Repositories\CouponRepositoryInterface;
 
 // Repository Implementations
 use App\Repositories\EloquentProductRepository;
@@ -25,6 +26,7 @@ use App\Repositories\EloquentSkuRepository;
 use App\Repositories\EloquentCategoryRepository;
 use App\Repositories\EloquentReviewRepository;
 use App\Repositories\EloquentWishlistRepository;
+use App\Repositories\EloquentCouponRepository;
 
 // Service Interfaces
 use App\Contracts\Services\PaymentServiceInterface;
@@ -36,6 +38,7 @@ use App\Contracts\Services\InventoryServiceInterface;
 use App\Contracts\Services\LogisticsServiceInterface;
 use App\Contracts\Services\ReviewServiceInterface;
 use App\Contracts\Services\WishlistServiceInterface;
+use App\Contracts\Services\CouponServiceInterface;
 
 // Service Implementations
 use App\Services\PaymentService;
@@ -47,6 +50,7 @@ use App\Services\InventoryService;
 use App\Services\LogisticsService;
 use App\Services\ReviewService;
 use App\Services\WishlistService;
+use App\Services\CouponService;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
@@ -67,6 +71,7 @@ class RepositoryServiceProvider extends ServiceProvider
         CategoryRepositoryInterface::class => EloquentCategoryRepository::class,
         ReviewRepositoryInterface::class => EloquentReviewRepository::class,
         WishlistRepositoryInterface::class => EloquentWishlistRepository::class,
+        CouponRepositoryInterface::class => EloquentCouponRepository::class,
 
         // Service bindings
         PaymentServiceInterface::class => PaymentService::class,
@@ -77,7 +82,8 @@ class RepositoryServiceProvider extends ServiceProvider
         InventoryServiceInterface::class => InventoryService::class,
         LogisticsServiceInterface::class => LogisticsService::class,
         ReviewServiceInterface::class => ReviewService::class,
-        WishlistServiceInterface::class => WishlistService::class, // Added
+        WishlistServiceInterface::class => WishlistService::class,
+        CouponServiceInterface::class => CouponService::class,
     ];
 
     /**
