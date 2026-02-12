@@ -2,28 +2,28 @@
 
 namespace Database\Factories;
 
+use App\Models\Blog;
+use App\Models\BlogCategory;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Blog>
- */
 class BlogFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = Blog::class;
+
     public $blog_image = ['blog-minimalis-desk.png', 'blog-purple-soffa.png', 'blog-white-soffa.png'];
 
     public function definition()
     {
         return [
-            'user_id' => $this->faker->randomElement([1]),
-            'blog_title' => $this->faker->sentence(4),
-            'blog_tags' => $this->faker->sentence(6),
-            'blog_long_description' => $this->faker->paragraph(10),
-            'blog_image' => 'blog_image/'.$this->faker->randomElement($this->blog_image),
+            'user_id' => User::factory(),
+            'blog_category_id' => BlogCategory::factory(),
+            'blog_title' => $this->faker->sentence(),
+            'blog_tags' => implode(',', $this->faker->words(5)),
+            'blog_long_description' => $this->faker->paragraphs(5, true),
+            'blog_image' => $this->faker->randomElement($this->blog_image),
+            'meta_description' => $this->faker->sentence(),
+            'related_products' => [],
         ];
     }
 }
