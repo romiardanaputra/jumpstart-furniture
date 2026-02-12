@@ -14,6 +14,7 @@ module.exports = {
         extend: {
             fontFamily: {
                 sans: ["Geist", ...defaultTheme.fontFamily.sans],
+                satoshi: ["Satoshi", "sans-serif"],
             },
             colors: {
                 border: "hsl(var(--border))",
@@ -36,6 +37,12 @@ module.exports = {
                 accent: {
                     DEFAULT: "hsl(var(--accent))",
                     foreground: "hsl(var(--accent-foreground))",
+                },
+                brand: {
+                    orange: "hsl(var(--brand-orange))",
+                    cream: "hsl(var(--brand-cream))",
+                    peach: "hsl(var(--brand-peach))",
+                    dark: "hsl(var(--brand-dark))",
                 },
             },
             borderRadius: {
