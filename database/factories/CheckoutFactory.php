@@ -19,13 +19,13 @@ class CheckoutFactory extends Factory
             'user_id' => User::factory(),
             'product_id' => Product::factory(),
             'sku_id' => Sku::factory(),
-            'cart_id' => null, // Usually linked to a cart or separate
+            'cart_id' => null,
             'shipping_address' => $this->faker->address(),
-            'shipping_price' => $this->faker->numberBetween(10, 100),
-            'shipping_method' => $this->faker->randomElement(['Standard', 'Express', 'Next Day']),
-            'payment_status' => $this->faker->randomElement(['Pending', 'Paid', 'Failed']),
-            'payment_total' => $this->faker->numberBetween(100, 5000),
-            'stripe_charge_id' => 'ch_' . $this->faker->lexify('????????????'),
+            'shipping_price' => $this->faker->numberBetween(10000, 50000),
+            'shipping_method' => $this->faker->randomElement(['Standard', 'Express', 'Cargo']),
+            'payment_status' => $this->faker->randomElement(['pending', 'processing', 'completed', 'failed', 'cancelled']),
+            'payment_total' => $this->faker->numberBetween(100000, 5000000),
+            // Removed stripe_charge_id as it doesn't exist in migrations
             'xendit_invoice_id' => 'inv_' . $this->faker->lexify('????????????'),
             'xendit_external_id' => 'ext_' . $this->faker->lexify('????????????'),
         ];

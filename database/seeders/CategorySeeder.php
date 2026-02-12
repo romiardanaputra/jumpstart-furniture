@@ -4,28 +4,13 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class CategorySeeder extends Seeder
 {
     public function run()
     {
-        $categories = [
-            'Sofa',
-            'Bed',
-            'Table',
-            'Chair',
-            'Storage',
-            'Lighting',
-            'Outdoor'
-        ];
-
-        foreach ($categories as $cat) {
-            Category::create([
-                'category_name' => $cat,
-                'category_slug' => Str::slug($cat),
-                'category_description' => "Explore our premium selection of {$cat} items.",
-            ]);
-        }
+        DB::table('categories')->delete();
+        Category::factory()->count(10)->create(); // 10 main categories
     }
 }

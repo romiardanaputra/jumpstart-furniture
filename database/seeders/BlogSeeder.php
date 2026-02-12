@@ -2,18 +2,26 @@
 
 namespace Database\Seeders;
 
-use App\Models\Blog as ModelsBlogs;
+use App\Models\Blog;
+use App\Models\User;
+use App\Models\BlogCategory;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class BlogSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
-        ModelsBlogs::factory(3)->create();
+        DB::table('blogs')->delete();
+        
+        $users = User::all();
+        $categories = BlogCategory::all();
+
+        for ($i = 0; $i < 30; $i++) {
+            Blog::factory()->create([
+                'user_id' => $users->random()->id,
+                'blog_category_id' => $categories->random()->category_id,
+            ]);
+        }
     }
 }

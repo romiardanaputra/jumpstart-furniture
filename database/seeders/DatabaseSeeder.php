@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -14,14 +13,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // $this->call(UserSeeder::class);
-        // $this->call(ProductSeeder::class);
-        // $this->call(BlogSeeder::class);
-        
         $this->call([
+            UserSeeder::class,
             CategorySeeder::class,
             AttributeSeeder::class,
-            ProductSkuSeeder::class,
+            AttributeValueSeeder::class,
+            BlogCategorySeeder::class,
+            CouponSeeder::class,
+            ShippingRateSeeder::class,
+            ProductSeeder::class,
+            SkuSeeder::class,
+            BlogSeeder::class,
+            CartSeeder::class,
+            CheckoutSeeder::class,
+            CouponUsageSeeder::class,
+            ReviewSeeder::class,
+            WishlistSeeder::class,
         ]);
     }
 }
