@@ -169,7 +169,7 @@
     </section>
 
     {{-- ===== BEST SELLING PRODUCTS ===== --}}
-    <x-best-product />
+    <x-best-product :products="$products" />
 
     {{-- ===== ABOUT SECTION ===== --}}
     <x-about />
@@ -218,7 +218,7 @@
     {{-- ===== BLOG ===== --}}
     <section class="bg-brand-cream">
         <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
-            <x-blog />
+            <x-blog :blogs="$blogs" />
         </div>
     </section>
 

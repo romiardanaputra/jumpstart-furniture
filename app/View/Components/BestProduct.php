@@ -7,10 +7,17 @@ use Illuminate\View\Component;
 
 class BestProduct extends Component
 {
+    public $products;
+
+    public function __construct($products = null)
+    {
+        $this->products = $products;
+    }
+
     public function render()
     {
         return view('components.best-product', [
-            'products' => Product::all(),
+            'products' => $this->products ?? Product::all(),
         ]);
     }
 }

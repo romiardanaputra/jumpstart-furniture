@@ -20,7 +20,7 @@
                         {{-- Image --}}
                         <div class="aspect-square w-full overflow-hidden bg-brand-peach/30 relative">
                             <img class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                 src="{{ asset('storage/'. $product->product_image) }}"
+                                 src="{{ str_starts_with($product->product_image, 'http') ? $product->product_image : asset('storage/'. $product->product_image) }}"
                                  alt="{{ $product->product_name }}">
                             {{-- Price badge --}}
                             <div class="absolute top-3 right-3 px-2.5 py-1 bg-white/90 backdrop-blur-sm rounded-full shadow-sm">
@@ -56,5 +56,11 @@
                 </div>
             @endforelse
         </div>
+
+        {{-- Pagination --}}
+        <div class="mt-12 flex justify-center custom-pagination">
+            {{ $products->links('vendor.pagination.custom') }}
+        </div>
     </div>
+
 </section>
