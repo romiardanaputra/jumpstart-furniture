@@ -18,11 +18,13 @@ class WishlistSeeder extends Seeder
         $products = Product::all();
 
         foreach ($users as $user) {
-            $count = rand(0, 5);
-            for ($i = 0; $i < $count; $i++) {
+            $count = min(rand(1, 5), $products->count());
+            $randomProducts = $products->random($count);
+
+            foreach ($randomProducts as $product) {
                 Wishlist::factory()->create([
                     'user_id' => $user->id,
-                    'product_id' => $products->random()->product_id,
+                    'product_id' => $product->product_id,
                 ]);
             }
         }
