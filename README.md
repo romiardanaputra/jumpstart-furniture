@@ -1,66 +1,118 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# JumpStart Furniture 🛋️
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**JumpStart Furniture** is a premium e-commerce platform built with Laravel 9, designed to provide a seamless and visually stunning shopping experience for high-end furniture. The platform emphasizes performance, scalability, and a modern user interface.
 
-## About Laravel
+![JumpStart Furniture Logo](https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Core Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **🛒 Dynamic Product Catalog**: Real-time filtering (by color, material, room type) using Livewire.
+- **💳 Secure Payments**: Full integration with **Xendit** (Virtual Account, E-Wallet, QRIS) with idempotency protection.
+- **🚚 Smart Logistics**: Dynamic shipping rates calculation through **RajaOngkir** integration.
+- **📰 Advanced Blog System**: SEO-friendly "Shop the Look" integration and rich-text editing.
+- **🛡️ Enterprise Architecture**: Robust Service-Repository pattern for clear separation of concerns.
+- **👤 User Profiles**: Comprehensive account management and order tracking powered by Jetstream & Sanctum.
+- **📊 Admin Dashboard**: KPIs, product variation management, and order pipeline tracking.
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🛠️ Tech Stack
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- **Backend**: [Laravel 9.x](https://laravel.com) (PHP 8.1+)
+- **Frontend**: [Tall Stack](https://tallstack.dev) (Tailwind CSS, Alpine.js, Laravel Livewire, Laravel)
+- **State Management**: [Alpine.js](https://alpinejs.dev)
+- **Styling**: [Tailwind CSS 3](https://tailwindcss.com) & [Flowbite](https://flowbite.com)
+- **Payments**: [Xendit PHP SDK](https://github.com/xendit/xendit-php)
+- **Build Tool**: [Vite](https://vitejs.dev)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## 🏗️ Architecture & Standards
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+This project follows an enterprise-grade architecture to ensure maintainability:
 
-### Premium Partners
+1. **Service-Repository Pattern**: Decouples business logic from data access.
+2. **Contract-Based DI**: Uses PHP interfaces for flexible service injection.
+3. **Optimistic/Pessimistic Locking**: Ensures data integrity during high-concurrency checkouts.
+4. **Atomic UI Design**: Uses a custom `x-ui` component library for visual consistency.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+For more details, see the [Architecture Overview](docs/ARCHITECTURE.md).
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 📦 Getting Started
 
-## Code of Conduct
+### Prerequisites
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- PHP >= 8.1
+- Composer
+- Node.js & NPM
+- MySQL/PostgreSQL
 
-## Security Vulnerabilities
+### Installation
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+1. **Clone the repository**:
 
-## License
+    ```bash
+    git clone https://github.com/romiardanaputra/jumpstart-furniture.git
+    cd jumpstart-furniture
+    ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+2. **Install dependencies**:
+
+    ```bash
+    composer install
+    npm install
+    ```
+
+3. **Setup environment**:
+
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
+
+4. **Run migrations & seeders**:
+
+    ```bash
+    php artisan migrate --seed
+    ```
+
+5. **Compile assets**:
+
+    ```bash
+    npm run dev
+    ```
+
+6. **Serve the application**:
+    ```bash
+    php artisan serve
+    ```
+
+---
+
+## 📂 Project Structure
+
+- `app/Services`: Business logic orchestration.
+- `app/Repositories`: Data access logic (Eloquent).
+- `app/Contracts`: System interfaces and definitions.
+- `app/Http/Livewire`: Interactive frontend components.
+- `docs/`: Technical documentation and roadmaps.
+
+---
+
+## 🗺️ Roadmap
+
+- [x] Phase 1: MVP - Core Storefront & Checkout.
+- [ ] Phase 2: Growth - RajaOngkir & WA Notifications.
+- [ ] Phase 3: Advanced - AI Recommendations & AR Preview.
+
+See the full [Feature Roadmap](docs/FEATURE_ROADMAP.md) for details.
+
+---
+
+## ⚖️ License
+
+The JumpStart Furniture platform is open-sourced software licensed under the [MIT license](LICENSE).
