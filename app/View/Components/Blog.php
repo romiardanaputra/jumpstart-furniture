@@ -11,6 +11,7 @@ class Blog extends Component
 
     public function __construct($blogs = null)
     {
+        // dd('constructor hit');
         $this->blogs = $blogs;
     }
 

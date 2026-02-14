@@ -2,22 +2,25 @@
 
 namespace App\Http\Livewire;
 
-use App\Models\Blog as ModelsBlogs;
 use Livewire\Component;
+use Livewire\WithPagination;
+use App\Models\Blog as ModelsBlogs;
 
 class Blog extends Component
 {
+    use WithPagination;
+
+    protected $paginationTheme = 'tailwind';
+
     public static function getUrl()
     {
-        $current_url = url()->current();
-
-        return $current_url;
+        return url()->current();
     }
 
     public function render()
     {
         return view('features.content.blog', [
-            'blogs' => ModelsBlogs::all(),
+            'blogs' => ModelsBlogs::latest()->paginate(9),
         ]);
     }
 }
