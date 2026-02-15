@@ -42,9 +42,7 @@ Route::middleware('guest')->group(function () {
 
 // only authenticated user can access
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('features.user.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', \App\Http\Livewire\Dashboard::class)->name('dashboard');
 
     Route::middleware('role:member')->group(function () {
         Route::get('wishlist', WishlistPage::class)->name('wishlist');

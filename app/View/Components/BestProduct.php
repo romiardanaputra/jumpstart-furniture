@@ -8,10 +8,12 @@ use Illuminate\View\Component;
 class BestProduct extends Component
 {
     public $products;
+    public $nested;
 
-    public function __construct($products = null)
+    public function __construct($products = null, $nested = false)
     {
         $this->products = $products ?? Product::latest()->paginate(10);
+        $this->nested = $nested;
     }
 
     public function render()
