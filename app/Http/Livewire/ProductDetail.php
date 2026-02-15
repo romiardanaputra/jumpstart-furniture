@@ -12,7 +12,7 @@ class ProductDetail extends Component
     public $selectedSku;
     public $selectedAttributes = [];
     public $quantity = 1;
-    public $reviews = [];
+    public $reviews;
     public $averageRating = 0;
 
     protected $listeners = ['reviewAdded' => 'loadReviews'];
@@ -58,6 +58,24 @@ class ProductDetail extends Component
 
         if ($matchingSku) {
             $this->selectedSku = $matchingSku;
+        }
+    }
+
+    /**
+     * Increment item quantity
+     */
+    public function increment(): void
+    {
+        $this->quantity++;
+    }
+
+    /**
+     * Decrement item quantity
+     */
+    public function decrement(): void
+    {
+        if ($this->quantity > 1) {
+            $this->quantity--;
         }
     }
 

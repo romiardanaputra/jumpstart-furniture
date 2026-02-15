@@ -83,11 +83,11 @@
                 <!-- Actions -->
                 <div class="mt-10 flex flex-col sm:flex-row gap-4">
                     <div class="flex items-center border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden bg-zinc-50 dark:bg-zinc-900">
-                        <button wire:click="$decrement('quantity')" class="p-4 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors">
+                        <button wire:click="decrement" class="p-4 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
                         </button>
                         <input type="number" wire:model="quantity" class="w-12 text-center bg-transparent border-none text-zinc-900 dark:text-zinc-100 font-bold focus:ring-0">
-                        <button wire:click="$increment('quantity')" class="p-4 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors">
+                        <button wire:click="increment" class="p-4 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         </button>
                     </div>

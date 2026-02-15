@@ -11,14 +11,11 @@ class Blog extends Component
 
     public function __construct($blogs = null)
     {
-        // dd('constructor hit');
-        $this->blogs = $blogs;
+        $this->blogs = $blogs ?? ModelsBlogs::latest()->paginate(6);
     }
 
     public function render()
     {
-        return view('components.blog', [
-            'blogs' => $this->blogs ?? ModelsBlogs::all()
-        ]);
+        return view('components.blog');
     }
 }

@@ -58,9 +58,11 @@
         </div>
 
         {{-- Pagination --}}
-        <div class="mt-12 flex justify-center custom-pagination">
-            {{ $products->links('vendor.pagination.custom') }}
-        </div>
+        @if(method_exists($products, 'links'))
+            <div class="mt-12 flex justify-center custom-pagination">
+                {{ $products->links('vendor.pagination.custom') }}
+            </div>
+        @endif
     </div>
 
 </section>

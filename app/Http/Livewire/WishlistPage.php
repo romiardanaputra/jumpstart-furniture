@@ -22,6 +22,6 @@ class WishlistPage extends Component
 
         return view('livewire.wishlist-page', [
             'wishlistItems' => $wishlistItems
-        ])->layout('layouts.app');
+        ])->layout('layouts.app-user');
     }
 }

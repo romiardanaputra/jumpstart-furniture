@@ -37,6 +37,11 @@ class User extends Authenticatable
         return $this->hasMany(Blog::class);
     }
 
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class, 'user_id');
+    }
+
     protected $fillable = [
         'first_name',
         'last_name',

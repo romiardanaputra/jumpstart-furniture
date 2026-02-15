@@ -144,7 +144,7 @@ class ShoppingCart extends Component
     {
         return view('features.shop.shopping-cart', [
             'carts' => $this->cartService->getCartItems(auth()->user()->id),
-        ]);
+        ])->layout('layouts.app-user');
     }
 }
 

@@ -77,7 +77,9 @@
     </div>
 
     {{-- Enhanced Pagination Wrapper --}}
-    <div class="mt-20">
-        {{ $blogs->links('vendor.pagination.custom') }}
-    </div>
+    @if(method_exists($blogs, 'links'))
+        <div class="mt-20">
+            {{ $blogs->links('vendor.pagination.custom') }}
+        </div>
+    @endif
 </section>

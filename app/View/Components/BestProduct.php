@@ -11,13 +11,11 @@ class BestProduct extends Component
 
     public function __construct($products = null)
     {
-        $this->products = $products;
+        $this->products = $products ?? Product::latest()->paginate(10);
     }
 
     public function render()
     {
-        return view('components.best-product', [
-            'products' => $this->products ?? Product::all(),
-        ]);
+        return view('components.best-product');
     }
 }
